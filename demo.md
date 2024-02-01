@@ -6,7 +6,7 @@
     - install docker
     - setup a CONDA environemnt for the project, if you want. 
 
-    ## Video Starts
+### [Video Starts]
 ## Introduction / Overview
 - The Goal here is to build a classification model, and a API for use with a custom GPT while augmenting the response. 
 - We will be using clearml for our ai ops and clearml-serving for our inference platform and API. 
@@ -147,6 +147,8 @@ What I did here was take standardised essay prompts and genererate essays using 
 ## Lets Get to Code. 
 1.  Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
 2.  Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
+
+> check out [this tutorial](https://clear.ml/docs/latest/docs/clearml_serving/clearml_serving_tutorial) for more general setup. this is specific to this project. but not much. 
 
 3.  Install clearml-serving CLI:
 
@@ -302,5 +304,256 @@ class Preprocess(object):
 
 ```
 
+API is programmed to return the Softmax probability of it's forcast. we are not going to run inference here on the EBM, for simplicitys sake. It inproves berts score by about 5 percenteged. Not that it's more accurate, but differently avvurate avereaging a better score. And since the scores are so close, I can use the features that are generated to forcast the EBM and return those as the analysis part of the forcast. margin of error of 5% is acceptable givin the complexeties of scoring two models to get almost the same forcast. You see where I'm going. Trade offs to reduce complexety must always be looked at. 
 
+Lets review the full preprocessing code. 
+
+## Test the feature generation. 
+
+Lets make a test class for the features. I'm just running the features code. 
+
+```python
+import unittest
+import sys
+import logging
+import pandas as pd
+sys.path.append('examples/model')
+
+from preprocess import Preprocess
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+class PreprocessTest(unittest.TestCase):
+
+    def setUp(self):
+        # Initialize the Preprocess object before each test
+        self.preprocess = Preprocess()
+
+    def test_generate_features(self):
+        # Test the generate_features_from_mygpt function to ensure it returns a DataFrame
+        input_text = "This is a test essay about writing code that writes essays that are about writing essays"
+        output_df = self.preprocess.generate_features(input_text,is_inference=True)
+        pd.set_option('display.float_format', '{:.6f}'.format)
+        print(output_df)
+        logging.info(f'Output DataFrame: \n{output_df.to_string()}')
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+Run 
+```bash
+python test_preprocess.py
+```
+
+## Deploy 
+if everything above is setup and tested. this deployes it and prepare the model for inference. 
+```shell
+clearml-serving --id c1f81bccd89b447a9c256c64171188a8 model add \
+--engine triton --endpoint "bert_infer" \
+--preprocess "examples/model/preprocess.py" \
+--model-id aaa4d84a9d53466287a17dff91da94b8 \
+--input-size 1 128 \
+--input-name "input_ids" \
+--input-type float32 \
+--output-size -1 2 \
+--output-name "output" \
+--output-type float32 
+```
+
+Review above. There is an auto update script. But running the abive deploys any changes to your preprocess code.
+
+> **last 10%**: to push this into the clouds I use Kubernets and helm charts. The charts I uses are all [here](https://github.com/allegroai/clearml-helm-charts/tree/main/charts/clearml-serving). 
  
+
+## Lets test it locally. 
+
+- i like to do curl and postman tests. for complex apis I like to create in postman. I built a Flask harness for this, but it's an unnessecary step. 
+```curl
+curl -X POST "http://127.0.0.1:8080/serve/bert_infer" \
+-H "Content-Type: application/json" \
+-d "{\"text\":\"As the education landscape continues to evolve, the debate over the benefits of students attending school from home has become increasingly relevant. This essay will delve into the multifaceted advantages of remote learning, particularly for students with anxiety or depression, the impact of drama and rumors on student performance in a traditional school setting, and the potential advantages of distance learning on the student body as a whole. By examining these aspects, we aim to develop a strong argument supporting the idea of students attending school from home.\n\nFor students grappling with anxiety or depression, the traditional school environment can be overwhelming and exacerbate their mental health challenges. In a study published in the Journal of Medical Internet Research, it was found that remote learning provided a less stressful and more flexible environment for students dealing with mental health issues. Attending school from home allows these students to create a personalized, comfortable space where they can focus on their studies without the added pressure of social interactions or the fear of judgment from their peers. By minimizing the triggers that often come with a traditional school setting, remote learning offers a valuable opportunity for these students to manage their mental health and concentrate on their academic pursuits.\n\nMoreover, the impact of drama and rumors on student performance in a traditional school setting cannot be overlooked. The social dynamics and peer interactions in a physical school can sometimes lead to the proliferation of rumors and drama, which can significantly impact a student's emotional well-being and academic focus. In contrast, attending school from home provides a shield from these negative influences, allowing students to remain focused on their studies without being distracted or distressed by external factors. This isolation from detrimental social dynamics can lead to a more positive and productive learning environment for students, fostering their academic growth and emotional stability.\n\nFurthermore, the potential advantages of distance learning on the student body as a whole extend beyond individual well-being. Remote learning promotes inclusivity by accommodating students with diverse needs and circumstances, such as those with physical disabilities, chronic illnesses, or those balancing familial responsibilities. A study by the National Education Association highlighted that distance learning facilitates greater equity and access to education for students who may face barriers in a traditional school setting. By embracing remote learning, educational institutions can create an environment that caters to the varied needs of their student body, fostering an inclusive and supportive learning community.\n\nConsidering these aspects, it is evident that students attending school from home can reap a multitude of benefits. This alternative mode of learning offers a supportive and conducive environment for students with anxiety or depression, shields them from the detrimental impact of drama and rumors, and promotes inclusivity and equity within the student body. As such, it is crucial for educational institutions to recognize the potential advantages of remote learning and consider its implementation as a means of enhancing the overall well-being and academic success of their students.\n\nIn conclusion, the benefits of students attending school from home are substantial and wide-ranging. From supporting students with anxiety or depression to mitigating the impact of social dynamics on academic performance and fostering inclusivity, remote learning offers a promising avenue for educational advancement. By prioritizing the well-being and educational needs of students, embracing remote learning can pave the way for a more holistic and supportive approach to education. Therefore, it is imperative for educators and policymakers to consider the potential advantages of remote learning and seriously contemplate its integration into the educational framework.\"}"
+```
+
+## Install ngrok 
+- https://ngrok.com/ and create a tunnel to your local machine inference server. you'll need this to work with custom GPT actions 
+```shell
+ngrok config add-authtoken <TOKEN>
+ngrok http http://localhost:8080
+```
+
+Test your ngrok url and we're ready to start the reason we are all here, the GPT. it makes it all worth while. 
+
+## GPTs. 
+I've never coded like this. If you've never really seen how what we used to call chatbots, were really meant to do. It's a whole new way to input instructions to a machine. it's qrite facinating. 
+
+In a nutshell, we're going to 
+
+1. Create a privacy policy. Gotta have it. 
+2. Create our swagger 
+3. Create our Knoledge File. This is what the fellas call RAG [Retrieval-augmented generation]
+4. Our interaction with GPT to put it all together. This is bad ass. 
+5. When it works, a little tear will roll down your face. trust me on this. I've watched some great tutorials, there are only a couple good ones, on you tube about this process, and we are all aware this is a bleding edge as it comes today. in this little world. 
+
+and GO
+
+## PP
+put this on the interent somewhere. Or create another ngrok tunnel. Or use [pinggy](https://pinggy.io/) - easy and free. 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy</title>
+</head>
+<body>
+    <header>
+        <h1>Privacy Policy</h1>
+    </header>
+    <section>
+        <h2>1. Introduction</h2>
+        <p>This is the privacy policy for our website. It explains how we collect, use, and protect your personal information when you use our services.</p>
+    </section>
+    <section>
+        <h2>2. Information We Collect</h2>
+        <p>We may collect the following types of information:</p>
+        <ul>
+            <li>Your name and contact information</li>
+            <li>Information about your usage of our services</li>
+        </ul>
+    </section>
+    <section>
+        <h2>3. How We Use Your Information</h2>
+        <p>We use your information for the following purposes:</p>
+        <ul>
+            <li>To provide and improve our services</li>
+            <li>To communicate with you</li>
+        </ul>
+    </section>
+    <section>
+        <h2>4. How We Protect Your Information</h2>
+        <p>We take the security of your information seriously and have implemented measures to protect it.</p>
+    </section>
+    <section>
+        <h2>5. Contact Us</h2>
+        <p>If you have any questions or concerns about our privacy policy, please contact us at <a href="mailto:contact@example.com">contact@example.com</a>.</p>
+    </section>
+</body>
+</html>
+```
+
+## Some Swagger. 
+
+Don't overthink this part and write up a complex swagger. it'll be tougher to get going. Your knolege file and how you converse with the assistant will dictate your return post processing. raddidy ann. 
+
+Don't try and make this more complex than it is. it's self explanitory and use the bare minimum for now. 
+
+```yaml
+openapi: 3.0.0
+info:
+  title: AI or LLM API
+  version: 1.0.0
+  description: Called a model to predict if the text was written by an LLM or a Human. Return analyses as well. 
+    extract features.
+servers:
+  - url: https://4435-173-31-239-51.ngrok-free.app/serve
+    description: Local development server
+paths:
+  /bert_infer:
+    post:
+      summary: Analyze text and generate predictions and features
+      operationId: bert_infer
+      requestBody:
+        description: Text to be analyzed
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Text content to analyze
+              required:
+                - text
+            example:
+              text: Sample text to analyze.
+      responses:
+        "200":
+          description: Successful response with analysis results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bert_predictions:
+                    type: array
+                    items:
+                      type: integer
+                    description: Predictions from the BERT-based model
+                  features:
+                    type: object
+                    additionalProperties:
+                      type: number
+                    description: Extracted features from the text
+              example:
+                bert_predictions:
+                  - 1
+                features:
+                  flesch_kincaid_grade: 8.2
+                  semantic_density: 0.5
+                  ...: null
+        "400":
+          description: Bad request when the input text is not provided
+        "500":
+          description: Internal server error for any unhandled exceptions
+```
+
+## Knoledge File. 
+this is where you get creative. our API just return a score and a features and integers. Our job now is tell our GPT to handle it. 
+
+GPT4 is brillaint at understnding the context of text. My first go at this I ised that entire Jypyter notebook html and code and asked for it to interpret as is. and it was write impressive. 
+
+For this lets do something new and create a structure document. Make it look like we know what we are doing. 
+
+Lets follow a template my assistant told me to use. This is what I mean by assistant. 
+
+**Headers and Subheaders**: I'd start by identifying the main topics and subtopics within the document, organized by headers (#) and subheaders (##, ###, etc.). This hierarchical structure will help in understanding the organization of the content, including features, model descriptions, and any coding-related information.
+
+**Feature Descriptions**: For each feature listed (presumably under headers like # Feature Name or ## Feature Name), I would extract the text that follows to understand what each feature represents, how it's calculated, and its relevance to the model's predictions.
+
+**Model Overview**: If there's a section providing an overview of the model (e.g., under a header like # Model Overview), I would summarize key points such as the model's architecture, training data, intended use case, and any unique characteristics that distinguish it from other models.
+
+**Code Snippets and Technical Details**: In sections containing code snippets or technical explanations (possibly under headers like # Code Overview), I'd extract key insights regarding the implementation of the model, any specific algorithms or techniques used, and how the features are integrated into the model's functioning.
+
+**Application and Use Cases**: Any sections discussing the application of the model or specific use cases (e.g., under a header like # Applications) would be summarized to highlight practical examples of how the model can be used, along with any results or findings from these applications.
+
+**Conclusion and Future Work**: If there's a concluding section, I'd extract insights on the current limitations, potential future enhancements, and any ongoing or planned research related to the model.
+
+And walla 
+## General Instructions
+You are a GPT named Human or LLM, specialized in processing essay texts that range from 2 to 1000 words. Upon receiving a text, you format it into JSON with a 'text' property, then call a specific API endpoint as described in a configuration yaml file. Always include a header key of "X-Pinggy-No-Screen" with a value of 1 when posting to the API. You provide a detailed breakdown of each property and its value within the 'features' object for clarity and precision. After this analysis, you display all values of the JSON return, separating the analysis section and the complete return values with '---'. You interpret 'bert_predictions' value of 1 as 'True' and 0 as 'False'. Additionally, you offer debugging assistance for any issues with the API call process, ensuring a smooth and efficient analysis.
+
+**Headers and Subheaders**
+Watch this.. 
+
+```python
+import nbformat
+from bs4 import BeautifulSoup
+with open("ai-or-human-notebook", "r", encoding="utf-8") as file:
+    soup = BeautifulSoup(file, "html.parser")
+
+# Find all headers
+headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+
+for header in headers:
+    print(f"Header: {header.text.strip()}")
+    next_sibling = header.find_next_sibling()
+    if next_sibling:
+        print(f"Content: {next_sibling.text.strip()}")
+    print("-" * 40)
+```
+
+And we have our headers. 
