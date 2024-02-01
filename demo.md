@@ -1,3 +1,6 @@
+## 🧬 Human vs 🅰👁️ Essay Detection 
+<img src="https://mikewlange.github.io/ai-or-human/images/ai_or_human_overview.png" alt="Alt Text"/>
+
 ## First 
 - clearml and clearml-serving set up and install. 
 - Install and setup
@@ -34,26 +37,33 @@ Launch the GPT and test.
 
 ## Clear ML
 talk about clear ml a bit
-Key concept for this demo. 
+Key concept for this demo.
 
+Here is the architecture of ClearML-Server 
+<img src="https://mikewlange.github.io/ai-or-human/images/clearml_ops_image.webp" width="800px" alt="Alt Text" >
+
+
+and ClearML-Serving. 
+<img src="https://github.com/allegroai/clearml-serving/raw/main/docs/design_diagram.png?raw=true" width="800px" alt="Alt Text" >
 ClearML - our AIML Ops tool. 
 
 ClearML-Sering
+
 - CLI - Secure configuration interface for on-line model upgrade/deployment on running Serving Services
 
--Serving Service Task - Control plane object storing configuration on all the endpoints. Support multiple separated instance, deployed on multiple clusters.
+- Serving Service Task - Control plane object storing configuration on all the endpoints. Support multiple separated instance, deployed on multiple clusters.
 
--Inference Services - Inference containers, performing model serving pre/post processing. Also support CPU model inferencing.
+- Inference Services - Inference containers, performing model serving pre/post processing. Also support CPU model inferencing.
 
--Serving Engine Services - Inference engine containers (e.g. Nvidia Triton, TorchServe etc.) used by the Inference Services for heavier model inference. I use nvidia triton. we convert the EBM model to ONYX and run through TIS. 
+- Serving Engine Services - Inference engine containers (e.g. Nvidia Triton, TorchServe etc.) used by the Inference Services for heavier model inference. I use nvidia triton. we convert the EBM model to ONYX and run through TIS. 
 
--Statistics Service - Single instance per Serving Service collecting and broadcasting model serving & performance statistics 
+- Statistics Service - Single instance per Serving Service collecting and broadcasting model serving & performance statistics 
 
--Time-series DB - Statistics collection service used by the Statistics Service, e.g. Prometheus
+- Time-series DB - Statistics collection service used by the Statistics Service, e.g. Prometheus
 
--Dashboards - Customizable dashboard-ing solution on top of the collected statistics, e.g. Grafana
+- Dashboards - Customizable dashboard-ing solution on top of the collected statistics, e.g. Grafana
 
-## Generate Model Data
+## Training Data
 An in depth review is out of scope here. However, check it out. The data generation is for the POC only. 
 
 What I did here was take standardised essay prompts and genererate essays using LLMS. 
@@ -61,7 +71,9 @@ What I did here was take standardised essay prompts and genererate essays using 
 > **LAST 10%**: For the prod model I use https://github.com/microsoft/promptbench to generate primpts that generate essays that fool the existing model GAN. It sounds complex, but you're basically creating a mad-lib out of your prompt and let the engines fill in the blanks. This way we can generate data from most all public LLMs. So I would design a prompt that can fool my BiLSTM-BERT Transformer classificaiton model. You cant just say fool it. Other than the mad-lib part of it there are things to consider like clarity and inherent properties of an essay. And since one of our models trains on custom features we create, those are also model weights that cen be used. 
 
 
-## Our Models
+# 🧮 **Model Development**
+<img src="https://mikewlange.github.io/ai-or-human/images/aiorhuman_develop_model.drawio.png" alt="Alt Text" />
+
 1. **BertForSequenceClassification**:
    - **Architecture**: BERT (Bidirectional Encoder Representations from Transformers) for sequence classification. [4]
 
@@ -132,7 +144,6 @@ What I did here was take standardised essay prompts and genererate essays using 
 ## Note on Sample Size and Statistical Tests
 - **Small Samples (Under 5000 Records)**: T-Test, Mann-Whitney U, and Kruskal-Wallis tests are effective.
 - **Large Samples (Over 5000 Records)**: Focus on **effect sizes** (Cohen's d and Glass's delta), as p-values will generally approach 0.
-
 
 ## Moving On
 **Now were going to get into the code. Starting with**
@@ -422,6 +433,7 @@ put this on the interent somewhere. Or create another ngrok tunnel. Or use [ping
         <ul>
             <li>Your name and contact information</li>
             <li>Information about your usage of our services</li>
+            <li>Information about your favorite shampoos</li>
         </ul>
     </section>
     <section>
@@ -429,12 +441,12 @@ put this on the interent somewhere. Or create another ngrok tunnel. Or use [ping
         <p>We use your information for the following purposes:</p>
         <ul>
             <li>To provide and improve our services</li>
-            <li>To communicate with you</li>
+            <li>To communicate with your friends about what you type in here</li>
         </ul>
     </section>
     <section>
         <h2>4. How We Protect Your Information</h2>
-        <p>We take the security of your information seriously and have implemented measures to protect it.</p>
+        <p>We take the security of your information as serious as companies like Equifax do.</p>
     </section>
     <section>
         <h2>5. Contact Us</h2>
@@ -520,6 +532,7 @@ For this lets do something new and create a structure document. Make it look lik
 
 Lets follow a template my assistant told me to use. This is what I mean by assistant. 
 
+---
 **Headers and Subheaders**: I'd start by identifying the main topics and subtopics within the document, organized by headers (#) and subheaders (##, ###, etc.). This hierarchical structure will help in understanding the organization of the content, including features, model descriptions, and any coding-related information.
 
 **Feature Descriptions**: For each feature listed (presumably under headers like # Feature Name or ## Feature Name), I would extract the text that follows to understand what each feature represents, how it's calculated, and its relevance to the model's predictions.
@@ -531,6 +544,8 @@ Lets follow a template my assistant told me to use. This is what I mean by assis
 **Application and Use Cases**: Any sections discussing the application of the model or specific use cases (e.g., under a header like # Applications) would be summarized to highlight practical examples of how the model can be used, along with any results or findings from these applications.
 
 **Conclusion and Future Work**: If there's a concluding section, I'd extract insights on the current limitations, potential future enhancements, and any ongoing or planned research related to the model.
+
+---
 
 And walla 
 ## General Instructions
@@ -556,4 +571,20 @@ for header in headers:
     print("-" * 40)
 ```
 
-And we have our headers. 
+And we have our headers. While cool, take we'll take some time to put this together. 
+
+## Initial Instructions
+
+You are a GPT named Human or LLM, specialized in processing essay texts that range from 2 to 1000 words. Upon receiving a text, you format it into JSON with a 'text' property, then call a specific API endpoint as described in a configuration yaml file. 
+
+Always include a header key of "X-Pinggy-No-Screen" with a value of 1 when posting to the API. 
+
+You provide a detailed breakdown of each property and its value within the 'features' object for clarity and precision. After this analysis, you display all values of the JSON return, separating the analysis section and the complete return values with '---'. 
+
+You interpret 'bert_predictions' value less than .5 it's likly human written and values > .5 are written by an LLM. 
+
+Additionally, you offer debugging assistance for any issues with the API call process, ensuring a smooth and efficient analysis.
+
+## Lets put it all together. 
+
+Lauch chat gpt and create a new GPT. 
