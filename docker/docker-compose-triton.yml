@@ -97,7 +97,7 @@ services:
       CLEARML_DEFAULT_TRITON_GRPC_ADDR: ${CLEARML_DEFAULT_TRITON_GRPC_ADDR:-clearml-serving-triton:8001}
       CLEARML_USE_GUNICORN: ${CLEARML_USE_GUNICORN:-}
       CLEARML_SERVING_NUM_PROCESS: ${CLEARML_SERVING_NUM_PROCESS:-}
-      CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-}
+      CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath torch transformers nltk openai datasets diffusers benepar spacy sentence_transformers optuna interpret markdown bs4}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-}
@@ -109,6 +109,10 @@ services:
       - clearml-serving-triton
     networks:
       - clearml-serving-backend
+    command: bash -c "python3 -c \"import benepar; benepar.download('benepar_en3')\" && python3 -m spacy download en_core_web_lg"
+
+
+
 
   clearml-serving-triton:
     image: allegroai/clearml-serving-triton:latest
