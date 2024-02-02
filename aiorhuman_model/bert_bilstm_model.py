@@ -66,11 +66,17 @@ class CFG:
     CLEAR_ML_AI_REWRITTEN_ESSAYS = '624315dd0e9b4314aa266654ebd71918' #pickle
 
     # Training configuration
-    
+    DEMO = 'False'
     DATA_PATH = 'data'
     SCRATCH_PATH = 'scratch'
     ARTIFACTS_PATH = 'artifacts'
     BERT_MODEL = 'bert-base-uncased'
+    
+
+run_name = f"run_{int(time.time())}"
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+writer = SummaryWriter(log_dir=f'{CFG.SCRATCH_PATH}/logs/{run_name}')
 
 class TextClassificationDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length):
@@ -125,7 +131,7 @@ def train(model, data_loader, optimizer, scheduler, device, epoch):
         total_loss += loss.item()
 
     avg_loss = total_loss / len(data_loader)
-    #writer.add_scalar('Training Loss', avg_loss, epoch)
+    writer.add_scalar('Training Loss', avg_loss, epoch)
     print(f"Epoch {epoch} - Training loss: {avg_loss}")
 
 def evaluate(model, data_loader, device, epoch, phase='Validation'):
@@ -150,10 +156,10 @@ def evaluate(model, data_loader, device, epoch, phase='Validation'):
     recall = recall_score(actual_labels, predictions, average='binary')
     f1 = f1_score(actual_labels, predictions, average='binary', zero_division=1)
 
-    # writer.add_scalar(f'{phase} Accuracy', accuracy, epoch)
-    # writer.add_scalar(f'{phase} Precision', precision, epoch)
-    # writer.add_scalar(f'{phase} Recall', recall, epoch)
-    # writer.add_scalar(f'{phase} F1 Score', f1, epoch)
+    writer.add_scalar(f'{phase} Accuracy', accuracy, epoch)
+    writer.add_scalar(f'{phase} Precision', precision, epoch)
+    writer.add_scalar(f'{phase} Recall', recall, epoch)
+    writer.add_scalar(f'{phase} F1 Score', f1, epoch)
 
     return accuracy, precision, recall, f1
 
@@ -176,34 +182,50 @@ def main():
     # Initialize ClearML task
     task = Task.init(project_name='Models - Text Classification', task_name='train bert bilstm', output_uri=True)
     task.connect(vars(args))
-    
-    # Set up TensorBoard writer
-    run_name = f"run_{int(time.time())}"
-    #writer = SummaryWriter(log_dir=f'/{run_name}')
 
+    if(CFG.DEMO):
+        # If you're folling for demo, download the two Grab the two training files here. or use the toy datasets from clearml
+        #kaggle_training_data = 'https://www.kaggle.com/datasets/thedrcat/daigt-v2-train-dataset' # download_clearml_dataset_as_dataframe(CFG.CLEAR_ML_KAGGLE_TRAIN_DATA)
+        #ai_generated_essays = 'https://www.kaggle.com/datasets/geraltrivia/llm-detect-gpt354-generated-and-rewritten-essays'
+        # kaggle_training_data = kaggle_training_data.dropna(subset=['text'])
+        # ai_generated_essays = ai_generated_essays.dropna(subset=['text'])
+        # random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=1000)[['text', 'label', 'source']]
+        # random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=400)[['text', 'label', 'source']]
+        # random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=500)[['text', 'label', 'source']]
+        # combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays])
+        # df_combined = combined_data.reset_index(drop=True)
+        # df_combined.drop_duplicates(inplace=True)
 
-    # Usage example
+        # or load the toy dataset
+        df_combined = pd.read_csv('combined_data_toy.csv')
+   
+    else:
+        kaggle_training_data = download_dataset_as_dataframe_csv(dataset_id=CFG.CLEAR_ML_KAGGLE_TRAIN_DATA,file_name='train_raw_run_1.csv') # download_clearml_dataset_as_dataframe(CFG.CLEAR_ML_KAGGLE_TRAIN_DATA)
+        ai_generated_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_GENERATED_ESSAYS,file_name='ai_generated.pkl')
+        ai_rewritten_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_REWRITTEN_ESSAYS, file_name='ai_rewritten_essays.pkl')
 
-    kaggle_training_data = download_dataset_as_dataframe_csv(dataset_id=CFG.CLEAR_ML_KAGGLE_TRAIN_DATA,file_name='train_raw_run_1.csv') # download_clearml_dataset_as_dataframe(CFG.CLEAR_ML_KAGGLE_TRAIN_DATA)
-    ai_generated_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_GENERATED_ESSAYS,file_name='ai_generated.pkl')
-    ai_rewritten_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_REWRITTEN_ESSAYS, file_name='ai_rewritten_essays.pkl')
+        # Drop rows with missing values in 'text' column for each DataFrame
+        kaggle_training_data = kaggle_training_data.dropna(subset=['text'])
+        ai_generated_essays = ai_generated_essays.dropna(subset=['text'])
+        ai_rewritten_essays = ai_rewritten_essays.dropna(subset=['text'])
 
-    # Drop rows with missing values in 'text' column for each DataFrame
-    kaggle_training_data = kaggle_training_data.dropna(subset=['text'])
-    ai_generated_essays = ai_generated_essays.dropna(subset=['text'])
-    ai_rewritten_essays = ai_rewritten_essays.dropna(subset=['text'])
-
-
-    # Sample For Training Set. For demo. Use all data for production
-    random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=1000)[['text', 'label', 'source']]
-    random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=400)[['text', 'label', 'source']]
-    random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=500)[['text', 'label', 'source']]
-    random_ai_rewritten_essays = ai_rewritten_essays[ai_rewritten_essays['label'] == 1].sample(n=100)[['text', 'label', 'source']]
-    
-    combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays,random_ai_rewritten_essays])
-    df_combined = combined_data.reset_index(drop=True)
-    df_combined.drop_duplicates(inplace=True)
-    
+        # Sample For Training Set. For demo. Use all data for production
+        random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=1000)[['text', 'label', 'source']]
+        random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=400)[['text', 'label', 'source']]
+        random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=500)[['text', 'label', 'source']]
+        random_ai_rewritten_essays = ai_rewritten_essays[ai_rewritten_essays['label'] == 1].sample(n=100)[['text', 'label', 'source']]
+        
+        combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays,random_ai_rewritten_essays])
+        df_combined = combined_data.reset_index(drop=True)
+        df_combined.drop_duplicates(inplace=True)
+        
+        # For Demo
+        random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=1000)[['text', 'label', 'source']]
+        random_kaggle_training_data_1 = random_ai_generated_essays[random_ai_generated_essays['label'] == 1].sample(n=1000)[['text', 'label', 'source']]
+        combined_data_toy = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays,random_ai_rewritten_essays])
+        df_combined_toy = combined_data_toy.reset_index(drop=True)
+        df_combined_toy.drop_duplicates(inplace=True)
+        pd.save_csv('combined_data_toy.csv')
     
     texts = df_combined['text'].str.lower().tolist()  # Lowercase for uncased BERT
     labels = df_combined['label'].tolist()
@@ -231,55 +253,20 @@ def main():
         evaluate(model, val_dataloader, CFG.DEVICE, epoch)
 
     # Ensure the model is in evaluation mode before scripting
-    model.eval()
+    #model.eval()
 
-    # Use a batch from your data loader as example inputs
-    # Note: This assumes your DataLoader returns a batch in a format that your model can accept directly
-    batch = next(iter(train_dataloader))
-    inputs = (batch['input_ids'].to(CFG.DEVICE), batch['attention_mask'].to(CFG.DEVICE))
+    # Was having touble with the torch jit. so we'll have to load our model iwth the objet. no biggie but we want inference without reference to prig obj. script out. 
+    model_path = 'bert_bilstm_model.pth'
+    torch.save(model.state_dict(), model_path)
 
-
-    # Script and save the model using the example inputs
-    model_path = f'{CFG.SCRATCH_PATH}/bert_bilstm_model.pth'
-    traced_model = torch.jit.trace(model, inputs)
-    traced_model.save(model_path)
-
-    # Log the scripted model in ClearML (if needed)
     output_model = OutputModel(task=task)
     output_model.update_weights(model_path)
-
-    print("Training completed")
     task.close()
 
-
+    print("Training completed")
 
 if __name__ == "__main__":
     main()
 
-
-
-
-    # Create a DataFrame from the string
-    #df = pd.DataFrame({'text': [text]})
-    # print(text.head(1))
-
-    # df = self.execute_features_pipeline(text)
-    # print("process completed")
-    # return df
-
-# clearml-serving --id '18cd998b3c1d4ba287edc07ed0400e76' model add --engine triton --endpoint "bert_bilstm_classifier" --preprocess "model/preprocess.py" --name "BERT BiLSTM Classifier" --project "Text Classification Project" --input-size 1 <max_length> --input-name "input_ids" --input-type int32 --output-size -1 <num_classes> --output-name "output" --output-type float32
-#  clearml-serving --id '18cd998b3c1d4ba287edc07ed0400e76' model add --engine triton --endpoint "bert_bilstm_classifier" 
-# --preprocess "model/preprocess.py" --name "BERT BiLSTM Classifier" --project "Text Classification Project" 
-# --input-size 1 128 --input-name "input_ids" --input-type int32 
-# --output-size -1 2 --output-name "output" --output-type float32
-
-# clearml-serving --id <service_id> model add --engine triton --endpoint "bert_bilstm_classifier" \
-# --preprocess "model/preprocess.py" --name "BERT BiLSTM Classifier" --project "Text Classification" \
-# --input-size 1 <max_length> --input-name "input_ids" --input-type int32 \
-# --output-size -1 <num_classes> --output-name "output" --output-type float32
-
-# clearml-serving --id 'ea9bcfb8b34b47318dcc4e54660dbe1d' model add --engine triton --endpoint "bert_bilstm_classifier" --preprocess "model/preprocess.py" --name "BERT BiLSTM Classifier" --project "Text Classification Project" --input-size 1 128 --input-name "input_ids" --input-type int32 --output-size -1 2 --output-name "output" --output-type float32       
-
-# ea9bcfb8b34b47318dcc4e54660dbe1d 
 
 

@@ -1,25 +1,38 @@
-## 🧬 Human vs 🅰👁️ Essay Detection 
-<img src="https://mikewlange.github.io/ai-or-human/images/ai_or_human_overview.png" alt="Alt Text"/>
-
-## First 
-- clearml and clearml-serving set up and install. 
-- Install and setup
-    - Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
-    - Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
-    - install docker
-    - setup a CONDA environemnt for the project, if you want. 
-
-### [Video Starts]
 ## Introduction / Overview
 - The Goal here is to build a classification model, and a API for use with a custom GPT while augmenting the response. 
 - We will be using clearml for our ai ops and clearml-serving for our inference platform and API. 
 - Design an API for use externally. specifically a custom GPT to analyse student essays. 
+- About me: 
 
-## About me
-- 
+## 🧬 Human vs 🅰👁️ Essay Detection 
+<img src="https://mikewlange.github.io/ai-or-human/images/ai_or_human_overview.png" alt="Alt Text"/>
+
+## Prerequisits 
+### Setup ClearML https://clear.ml/  
+- Install and setup
+    - Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
+    - Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
+    - Install Docker https://docs.docker.com/engine/install/
+    - Create an ngrok account ngrok.com 
 
 ## Product Demo. 
 Launch the GPT and test. 
+
+## POC Review - Notebook
+
+## ClearML Overview 
+- Quick reviw on clearml and clearml serving. 
+
+## Train the model 
+
+## Deploy Clearml-Serving Infrastructure. 
+
+## Orchistrate new model. 
+
+## Setup API and Inference
+
+## Design and Deploy GPT
+
 
 ## Proof of Concept Notebook
 **Hypothesis**: *Certain linguistic and structural patterns unique to AI-generated text can be identified and used for classification. We anticipate that our analysis will reveal distinct characteristics in AI-generated essays, enabling us to develop an effective classifier for this purpose.*
