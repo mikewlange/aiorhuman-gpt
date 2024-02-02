@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 from transformers import (BertModel, BertTokenizer,)
 from typing import Any, Optional, Callable, Union
-#from bert_bilstm_model import BERTBiLSTMClassifier  # Assuming this is your model class
 import logging
 import markdown
 from bs4 import BeautifulSoup
@@ -69,14 +68,11 @@ class Preprocess(object):
         self.features = pd.DataFrame()
         self.ebm_predictions = None
         # Load the EBM model
-        self.ebm_model = self.load_ebm_model('68210179fd1143d09d5b5a2cb3ec9c4a')
+        #self.ebm_model = self.load_ebm_model('68210179fd1143d09d5b5a2cb3ec9c4a')
 
     def load_ebm_model(self, model_id):
-        # Use ClearML to get the model's URL and download it
-        # preprocess_task = Task.get_task(task_name='create artifact', project_name='train ebm model')
-        # local_json = preprocess_task.artifacts['data file'].get_local_copy()
+
         model_path = StorageManager.get_local_copy(remote_url='https://files.clear.ml/Models%20-%20Text%20Classification/train%20ebm%20model.d5ab4a7111fe409ba5bc371ccd2bf051/models/ebm.pkl')
-        
         # Load the model from the downloaded file
         with open(model_path, 'rb') as f:
             ebm_model = pickle.load(f)
@@ -100,9 +96,6 @@ class Preprocess(object):
         except Exception as e:
             logging.error(f"An error occurred: {traceback.print_exc()}")
             traceback.print_exc()
-        #self.features = self.generate_features(body['text'], is_inference=True)
-        #logging.log("feature columns " + self.features.columns.tolist())
-        #print("featurs df " + self.features.head(1))
 
     def process(self, data: Any, state: dict, collect_custom_statistics_fn: Optional[Callable[[dict], None]]) -> Any:
         try:
@@ -112,12 +105,11 @@ class Preprocess(object):
             with torch.no_grad():
                 bert_outputs = self.bert_model(input_ids, attention_mask)
             
-            return bert_outputs
         except Exception as e:
             logging.error(f"An error occurred: {traceback.print_exc()}")
             traceback.print_exc()
         
-        # Use the EBM model to get predictions for the generated features
+        # Use the EBM model to get predictions for the generated features - skip for the demo
         #self.ebm_predictions = self.ebm_model.predict_proba(self.features)
         
         return bert_outputs
@@ -125,14 +117,11 @@ class Preprocess(object):
     def postprocess(self, data: Any, state: dict, collect_custom_statistics_fn: Optional[Callable[[dict], None]]) -> dict:
         bert_predictions = torch.argmax(data, dim=1).tolist()
 
-        #softmax_probabilities = torch.softmax(data2, axis=1)
+        #softmax_probabilities = torch.softmax(data, axis=1)
 
-        # Assuming ebm_data is already in a suitable format for your application
-        #return {'bert_predictions': bert_predictions, "features": self.features.to_dict()}
         return {'bert_predictions': bert_predictions, "features": self.features.to_dict()}
-    # ... other methods ...
+    
 
-    #PUNCTUATION_TO_RETAIN = '.?!,'
     def preprocess_text(self, text):
         try:
             # Remove markdown formatting
@@ -922,9 +911,7 @@ class Preprocess(object):
         except Exception as e:
             # if any fail, revert to the bert inference
             print(f"Error in feature extraction: {e}")
-        
-        
-        
+            
     def generate_features(self, text, is_inference=False):
         #print(text)
         # Create a DataFrame from the string
@@ -933,7 +920,6 @@ class Preprocess(object):
             print(df)
         else:
             df = text
-
 
         df = self.generate_features_for_inference(df,is_inference)
         print("process completed")

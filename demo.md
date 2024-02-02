@@ -361,10 +361,10 @@ python test_preprocess.py
 ## Deploy 
 if everything above is setup and tested. this deployes it and prepare the model for inference. 
 ```shell
-clearml-serving --id c1f81bccd89b447a9c256c64171188a8 model add \
+clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model add \
 --engine triton --endpoint "bert_infer" \
---preprocess "examples/model/preprocess.py" \
---model-id aaa4d84a9d53466287a17dff91da94b8 \
+--preprocess "clearml-serving-human-or-llm-gpt/aiorhuman_model/preprocess.py" \
+--model-id 7f64ef1ff35544a7858bbb6dcd04c6ee \
 --input-size 1 128 \
 --input-name "input_ids" \
 --input-type float32 \
@@ -394,16 +394,19 @@ ngrok config add-authtoken <TOKEN>
 ngrok http http://localhost:8080
 ```
 
+## Our Inference URL
+https://4435-173-31-239-51.ngrok-free.app/serve/bert_infer
+
 Test your ngrok url and we're ready to start the reason we are all here, the GPT. it makes it all worth while. 
 
 ## GPTs. 
 I've never coded like this. If you've never really seen how what we used to call chatbots, were really meant to do. It's a whole new way to input instructions to a machine. it's qrite facinating. 
 
-In a nutshell, we're going to 
+In a nutshell, we're going to. You must complete all steps to avoid unneeded frunstration. 
 
 1. Create a privacy policy. Gotta have it. 
 2. Create our swagger 
-3. Create our Knoledge File. This is what the fellas call RAG [Retrieval-augmented generation]
+3. Create our Knoledge File. This is RAG. Retrieval-augmented generation (RAG) is a technique for enhancing the accuracy and reliability of generative AI models with facts fetched from external sources.
 4. Our interaction with GPT to put it all together. This is bad ass. 
 5. When it works, a little tear will roll down your face. trust me on this. I've watched some great tutorials, there are only a couple good ones, on you tube about this process, and we are all aware this is a bleding edge as it comes today. in this little world. 
 
@@ -524,66 +527,7 @@ paths:
 ```
 
 ## Knoledge File. 
-this is where you get creative. our API just return a score and a features and integers. Our job now is tell our GPT to handle it. 
-
-GPT4 is brillaint at understnding the context of text. My first go at this I ised that entire Jypyter notebook html and code and asked for it to interpret as is. and it was write impressive. 
-
-For this lets do something new and create a structure document. Make it look like we know what we are doing. 
-
-Lets follow a template my assistant told me to use. This is what I mean by assistant. 
-
----
-**Headers and Subheaders**: I'd start by identifying the main topics and subtopics within the document, organized by headers (#) and subheaders (##, ###, etc.). This hierarchical structure will help in understanding the organization of the content, including features, model descriptions, and any coding-related information.
-
-**Feature Descriptions**: For each feature listed (presumably under headers like # Feature Name or ## Feature Name), I would extract the text that follows to understand what each feature represents, how it's calculated, and its relevance to the model's predictions.
-
-**Model Overview**: If there's a section providing an overview of the model (e.g., under a header like # Model Overview), I would summarize key points such as the model's architecture, training data, intended use case, and any unique characteristics that distinguish it from other models.
-
-**Code Snippets and Technical Details**: In sections containing code snippets or technical explanations (possibly under headers like # Code Overview), I'd extract key insights regarding the implementation of the model, any specific algorithms or techniques used, and how the features are integrated into the model's functioning.
-
-**Application and Use Cases**: Any sections discussing the application of the model or specific use cases (e.g., under a header like # Applications) would be summarized to highlight practical examples of how the model can be used, along with any results or findings from these applications.
-
-**Conclusion and Future Work**: If there's a concluding section, I'd extract insights on the current limitations, potential future enhancements, and any ongoing or planned research related to the model.
-
----
-
-And walla 
-## General Instructions
-You are a GPT named Human or LLM, specialized in processing essay texts that range from 2 to 1000 words. Upon receiving a text, you format it into JSON with a 'text' property, then call a specific API endpoint as described in a configuration yaml file. Always include a header key of "X-Pinggy-No-Screen" with a value of 1 when posting to the API. You provide a detailed breakdown of each property and its value within the 'features' object for clarity and precision. After this analysis, you display all values of the JSON return, separating the analysis section and the complete return values with '---'. You interpret 'bert_predictions' value of 1 as 'True' and 0 as 'False'. Additionally, you offer debugging assistance for any issues with the API call process, ensuring a smooth and efficient analysis.
-
-**Headers and Subheaders**
-Watch this.. 
-
-```python
-import nbformat
-from bs4 import BeautifulSoup
-with open("ai-or-human-notebook", "r", encoding="utf-8") as file:
-    soup = BeautifulSoup(file, "html.parser")
-
-# Find all headers
-headers = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
-
-for header in headers:
-    print(f"Header: {header.text.strip()}")
-    next_sibling = header.find_next_sibling()
-    if next_sibling:
-        print(f"Content: {next_sibling.text.strip()}")
-    print("-" * 40)
-```
-
-And we have our headers. While cool, take we'll take some time to put this together. 
-
-## Initial Instructions
-
-You are a GPT named Human or LLM, specialized in processing essay texts that range from 2 to 1000 words. Upon receiving a text, you format it into JSON with a 'text' property, then call a specific API endpoint as described in a configuration yaml file. 
-
-Always include a header key of "X-Pinggy-No-Screen" with a value of 1 when posting to the API. 
-
-You provide a detailed breakdown of each property and its value within the 'features' object for clarity and precision. After this analysis, you display all values of the JSON return, separating the analysis section and the complete return values with '---'. 
-
-You interpret 'bert_predictions' value less than .5 it's likly human written and values > .5 are written by an LLM. 
-
-Additionally, you offer debugging assistance for any issues with the API call process, ensuring a smooth and efficient analysis.
+[here is is]('clearml-serving-human-or-llm-gpt/GPT/knoledge.md')
 
 ## Lets put it all together. 
 

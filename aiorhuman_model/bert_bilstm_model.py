@@ -24,27 +24,52 @@ from clearml import Task, OutputModel
 from clearml_logger import ClearMLTaskHandler
 
 
+import pandas as pd
+import pickle
+from clearml import Task, StorageManager
+
+
+def download_dataset_as_dataframe(dataset_id='593fff56e3784e4fbfa4bf82096b0127', file_name="ai_generated.pkl"):
+    import pandas as pd
+    # import Dataset from clearml
+    from clearml import Dataset
+    dataset = Dataset.get(dataset_id, only_completed=True)
+    cached_folder = dataset.get_local_copy()
+    for file_name in os.listdir(cached_folder):
+        if file_name.endswith('.pkl'):
+            file_path = os.path.join(cached_folder, file_name)
+            dataframe = pd.read_pickle(file_path)
+            return dataframe
+    raise FileNotFoundError("No PKL file found in the dataset.")
+
+def download_dataset_as_dataframe_csv(dataset_id='593fff56e3784e4fbfa4bf82096b0127', file_name="ai_generated_essays.csv"):
+    import pandas as pd
+    # import Dataset from clearml
+    extension = file_name.split('.')[-1]
+    from clearml import Dataset
+    dataset = Dataset.get(dataset_id, only_completed=True)
+    cached_folder = dataset.get_local_copy()
+    for file_name in os.listdir(cached_folder):
+        if file_name.endswith(extension):
+            file_path = os.path.join(cached_folder, file_name)
+            dataframe = pd.read_csv(file_path)
+            return dataframe
+        
 class CFG:
     # Device configuration
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # ClearML Dataset IDs
-    CLEAR_ML_TRAINING_DATASET_ID = 'e71bc7e41b114a549ac1eaf1dff43099'
-    CLEAR_ML_KAGGLE_TRAIN_DATA = '24596ea241c34c6eb5013152a6122e48'
-    CLEAR_ML_AI_GENERATED_ESSAYS = '593fff56e3784e4fbfa4bf82096b0127'
-    CLEAR_ML_AI_REWRITTEN_ESSAYS = '624315dd0e9b4314aa266654ebd71918'
+    #CLEAR_ML_TRAINING_DATASET_ID = '24596ea241c34c6eb5013152a6122e48'
+    CLEAR_ML_KAGGLE_TRAIN_DATA = '24596ea241c34c6eb5013152a6122e48' #csv
+    CLEAR_ML_AI_GENERATED_ESSAYS = '593fff56e3784e4fbfa4bf82096b0127' #pickle
+    CLEAR_ML_AI_REWRITTEN_ESSAYS = '624315dd0e9b4314aa266654ebd71918' #pickle
 
     # Training configuration
-    DATA_ETL_STRATEGY = 1
-    TRAINING_DATA_COUNT = 1000
-    CLEARML_OFFLINE_MODE = False
-    CLEARML_ON = False
+    
+    DATA_PATH = 'data'
     SCRATCH_PATH = 'scratch'
     ARTIFACTS_PATH = 'artifacts'
-    ENSAMBLE_STRATEGY = 1
-    KAGGLE_RUN = False
-    SUBMISSION_RUN = True
-    EXPLAIN_CODE = False
     BERT_MODEL = 'bert-base-uncased'
 
 class TextClassificationDataset(Dataset):
@@ -156,16 +181,35 @@ def main():
     run_name = f"run_{int(time.time())}"
     #writer = SummaryWriter(log_dir=f'/{run_name}')
 
-    # Load and prepare data
-    tokenizer = BertTokenizer.from_pretrained(CFG.BERT_MODEL)
-    kaggle_training_data = pd.read_csv(f'{CFG.SCRATCH_PATH}/clearml-serving/examples/kaggle_train_data.csv/train_v2_drcat_02.csv')
-    random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=500) 
-    random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=500) 
-    combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1])
+
+    # Usage example
+
+    kaggle_training_data = download_dataset_as_dataframe_csv(dataset_id=CFG.CLEAR_ML_KAGGLE_TRAIN_DATA,file_name='train_raw_run_1.csv') # download_clearml_dataset_as_dataframe(CFG.CLEAR_ML_KAGGLE_TRAIN_DATA)
+    ai_generated_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_GENERATED_ESSAYS,file_name='ai_generated.pkl')
+    ai_rewritten_essays = download_dataset_as_dataframe(dataset_id=CFG.CLEAR_ML_AI_REWRITTEN_ESSAYS, file_name='ai_rewritten_essays.pkl')
+
+    # Drop rows with missing values in 'text' column for each DataFrame
+    kaggle_training_data = kaggle_training_data.dropna(subset=['text'])
+    ai_generated_essays = ai_generated_essays.dropna(subset=['text'])
+    ai_rewritten_essays = ai_rewritten_essays.dropna(subset=['text'])
+
+
+    # Sample For Training Set. For demo. Use all data for production
+    random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=1000)[['text', 'label', 'source']]
+    random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=400)[['text', 'label', 'source']]
+    random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=500)[['text', 'label', 'source']]
+    random_ai_rewritten_essays = ai_rewritten_essays[ai_rewritten_essays['label'] == 1].sample(n=100)[['text', 'label', 'source']]
+    
+    combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays,random_ai_rewritten_essays])
     df_combined = combined_data.reset_index(drop=True)
     df_combined.drop_duplicates(inplace=True)
+    
+    
     texts = df_combined['text'].str.lower().tolist()  # Lowercase for uncased BERT
     labels = df_combined['label'].tolist()
+    
+    tokenizer = BertTokenizer.from_pretrained(CFG.BERT_MODEL)
+    # Split the data into training and validation sets
     train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=0.3, random_state=42)
     train_dataset = TextClassificationDataset(train_texts, train_labels, tokenizer, args.max_length)
     val_dataset = TextClassificationDataset(val_texts, val_labels, tokenizer, args.max_length)
@@ -191,12 +235,13 @@ def main():
 
     # Use a batch from your data loader as example inputs
     # Note: This assumes your DataLoader returns a batch in a format that your model can accept directly
-    example_batch = next(iter(train_dataloader))
-    example_inputs = (example_batch['input_ids'].to(CFG.DEVICE), example_batch['attention_mask'].to(CFG.DEVICE))
+    batch = next(iter(train_dataloader))
+    inputs = (batch['input_ids'].to(CFG.DEVICE), batch['attention_mask'].to(CFG.DEVICE))
+
 
     # Script and save the model using the example inputs
-    model_path = f'{CFG.SCRATCH_PATH}/clearml-serving/clearml_serving/bert_bilstm_model.pth'
-    traced_model = torch.jit.trace(model, example_inputs)
+    model_path = f'{CFG.SCRATCH_PATH}/bert_bilstm_model.pth'
+    traced_model = torch.jit.trace(model, inputs)
     traced_model.save(model_path)
 
     # Log the scripted model in ClearML (if needed)
@@ -206,14 +251,7 @@ def main():
     print("Training completed")
     task.close()
 
-    # # Save and Upload Model
-    model_path = f'{CFG.SCRATCH_PATH}/clearml-serving/clearml_serving/bert_bilstm_model.pth'
-    torch.save(model, model_path)
-    output_model = OutputModel(task=task)
-    output_model.update_weights(model_path)
 
-    # print("Training completed")
-    # task.close()
 
 if __name__ == "__main__":
     main()

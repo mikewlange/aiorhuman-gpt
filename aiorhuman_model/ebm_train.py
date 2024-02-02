@@ -38,8 +38,6 @@ class EBMModel():
 
     # Add more tests as needed for other methods in your Preprocess class
 
-
-
 import argparse
 
 def parse_args():

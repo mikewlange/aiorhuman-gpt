@@ -22,5 +22,13 @@ then
       python3 -m pip install $CLEARML_EXTRA_PYTHON_PACKAGES
 fi
 
+if [ ! -z "$CLEARML_ADDITIONAL_SCRIPTS" ]
+then
+      python3 -m spacy download en_core_web_lg
+
+      # Download Benepar model
+      python3 -c "import benepar; benepar.download('benepar_en3')"
+fi
+
 echo "Starting Statistics Controller server"
 PYTHONPATH=$(pwd) python3 clearml_serving/statistics/main.py
