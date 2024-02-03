@@ -127,8 +127,10 @@ services:
       - clearml-serving-triton
     networks:
       - clearml-serving-backend
-    command: bash -c "python3 -c "import benepar; benepar.download('benepar_en3')" && python3 -m spacy download en_core_web_lg"
-
+    command: >
+      /bin/bash -c "python3 -c 'import benepar; benepar.download(\"benepar_en3\")' &&
+      python3 -m spacy download en_core_web_lg"
+    
 
 
   clearml-serving-triton:
