@@ -8,6 +8,8 @@
 <img src="https://mikewlange.github.io/ai-or-human/images/ai_or_human_overview.png" alt="Alt Text"/>
 
 ## Prereqs 
+i. Read [this](https://mikewlange.github.io/ai-or-human/ai-or-human-notebook.html)
+
 ### Setup ClearML https://clear.ml/  
 #### ClearML  
 ---- 
@@ -15,9 +17,11 @@
 2.  Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml) 
 ----
 
-#### Other
+#### Docker
 3. Install Docker https://docs.docker.com/engine/install/
+#### ngrok
 4. Create an ngrok account ngrok.com 
+#### training data
 5. Download training data
     - LLM generated - https://www.kaggle.com/datasets/geraltrivia/llm-detect-gpt354-generated-and-rewritten-essays
     - other Human and LLM - https://www.kaggle.com/datasets/thedrcat/daigt-v2-train-dataset 
@@ -27,12 +31,15 @@
 Launch the GPT and test. 
 
 ## Proof of Concept Review - Notebook
+[Notebook](https://mikewlange.github.io/ai-or-human/ai-or-human-notebook.html)
+
 My objective objective is to develop an effective classifier that can identify unique linguistic and structural patterns in human and llm-generated text and determin the source of the essay -Human or LLM. 
 
 We aim to identify these distinct characteristics in AI-generated essays, serving as a practical introduction to AI production models. This approach involves creating an ensemble model that combines transformer models with an interpretable model, the Explainable Boosting Machine (EBM), striking a balance between effectiveness and interpretability.
 
 ## ClearML Overview 
 - Quick reviw on clearml and clearml serving. 
+- Check these out. Victor is awesome! He explains every nook and cranny of the software. https://www.youtube.com/@ClearML 
 
 ## Prepare and Train Model. 
 1. clone the repo
@@ -52,7 +59,8 @@ python ai-or-human-gpt/aiorhuman_model/bert_bilstm_model.py
 ```
 
 **OR**
-Upload existing model. but you'd have to do this after you create your service below. 
+
+4. Upload existing model. but you'd have to do this after you create your service below - but yea. 
 
 ```shell
 clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model upload 
@@ -61,7 +69,7 @@ clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model upload
 --framework "pytorch" 
 --path bert_bilstm_model.pth
 ```
-4. 
+ 
 
 #### Converting your Model. 
 Here is a one shot prompt to use gpt 4.5 to convert to pytorch model code to a format that makes it better for use in clearml. It's good to do this from the get go, but just in case you're comverting other model code and what not. 
