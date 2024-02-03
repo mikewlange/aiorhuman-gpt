@@ -113,15 +113,15 @@ pip install clearml-serving #or into your virtualenv or conda env. conda active 
 ```shell 
 clearml-serving create --name "aiorhuman inference service"`
 ```
--   The new serving service UID should be printed `New Serving Service created: id=ooooahah12345` Lets look at this in ClearML. 
+-   The new serving service UID should be printed `New Serving Service created: id=ohohohahahah123456u` Lets look at this in ClearML. 
 
 5.  Write down the Serving Service UID
 
 #### Deploy Dockers To Internets
-6.  Clone clearml-serving repository. 
 
-```shell
-git clone https://github.com/allegroai/clearml-serving.git 
+6. Open the repo you just cloned in your editor. 
+```bash
+cd to-where-you-cloned-this: human-or-llm-gpt.git
 ```
 
 7. Now we are going to edit the clearml-serving/docker/docker-compose-triton.yml file.
@@ -148,10 +148,9 @@ CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath 
 cd docker && docker-compose --env-file example.env -f docker-compose-triton.yml up 
 ```
 
-
 > **Notice**: Any model that registers with "Triton" engine, will run the pre/post processing code on the Inference service container, and the model inference itself will be executed on the Triton Engine container.
 
-> YO! If you're not on a GPU, this will still work. However, you might see odd errors that make you nervous in the log. Go with deployment on an Nvidia gpu
+> YO! If you're not on a GPU, this will still work. However, you might see odd errors that make you nervous in the log. Go with deployment on an NVIDIA gpu
 
 Let's review what we did. 
 
@@ -159,6 +158,7 @@ Let's review what we did.
 11. Exlore Docker. 
 
 ## Setup API and Inference
+1. Head back to your project and look at 'aiorhuman_model/preprocess.py' and talk about the setup. 
 
 ```python
 class Preprocess(object):
@@ -194,7 +194,7 @@ class Preprocess(object):
     # .. all our other features
 
 ```
-## Test the feature generation. 
+### Test the feature generation. 
 
 Lets make a test class for the features. I'm just running the features code. 
 
@@ -346,7 +346,7 @@ In a nutshell, we're going to. You must complete all steps to avoid unneeded fru
 and GO
 
 ## PP
-put this on the interent somewhere. Or create another ngrok tunnel. Or use [pinggy](https://pinggy.io/) - easy and free. 
+put this on the interent somewhere. Or create another ngrok tunnel. Or use [pinggy](https://pinggy.io/) - easy and free. Or use the demo one here: https://mikewlange.github.io/human-or-llm-gpt/GPT/privacy_policy.html 
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -460,6 +460,6 @@ paths:
 ```
 
 ## Knoledge File. 
-[here is is]('clearml-serving-human-or-llm-gpt/GPT/knoledge.md')
+[here is is](https://mikewlange.github.io/human-or-llm-gpt/GPT/knoledge.md)
 
 ## Lets put it all together. 
