@@ -7,25 +7,6 @@
 ## 🧬 Human vs 🅰👁️ Essay Detection 
 <img src="https://mikewlange.github.io/ai-or-human/images/ai_or_human_overview.png" alt="Alt Text"/>
 
-## Prereqs 
-i. Read [this](https://mikewlange.github.io/ai-or-human/ai-or-human-notebook.html)
-
-### Setup ClearML https://clear.ml/  
-#### ClearML  
----- 
-1.  Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
-2.  Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml) 
-----
-
-#### Docker
-3. Install Docker https://docs.docker.com/engine/install/
-#### ngrok
-4. Create an ngrok account ngrok.com 
-#### training data
-5. Download training data
-    - LLM generated - https://www.kaggle.com/datasets/geraltrivia/llm-detect-gpt354-generated-and-rewritten-essays
-    - other Human and LLM - https://www.kaggle.com/datasets/thedrcat/daigt-v2-train-dataset 
-
 
 ## Product Demo. 
 Launch the GPT and test. 
@@ -41,24 +22,70 @@ We aim to identify these distinct characteristics in AI-generated essays, servin
 - Quick reviw on clearml and clearml serving. 
 - Check these out. Victor is awesome! He explains every nook and cranny of the software. https://www.youtube.com/@ClearML 
 
+## Setup Prerequisites 
+
+**ClearML**
+- Follow the https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps 
+This includs sign up (it's free)
+  - https://app.clear.ml/ sign up
+  - Install ClearML [click here for instrucions](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
+  - Connect ClearML SDK to the Server [instructions](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#connect-clearml-sdk-to-the-server)
+
+**Docker**
+- Install Docker https://docs.docker.com/engine/install/
+
+**ngrok**
+- Create an ngrok account ngrok.com 
+
+**Anaconda**
+- Can't hurt. 
+
 ## Prepare and Train Model. 
 1. clone the repo
 ```bash
-git clone https://github.com/mikewlange/human-or-llm-gpt.git
+git clone https://github.com/mikewlange/aiorhuman-gpt.git
 ```
 
 2. Install requrements. 
 ```bash
-pip install -r ai-or-human-gpt/aiorhuman_model/requirements.txt 
+pip install -r aiorhuman-gpt/aiorhuman_model/requirements.txt 
 ```
 
-3. Train your model. We are going to use the default params. When the training is complete, it is will be uploaded to clearml to use for inference anywhere.
+3. Setup Conda Env and Install (you can wing it..might be more fun to run into issues.
+```bash
+conda create -n "py39" python=3.9 ipython
+conda activate py39
+pip install textstat 
+pip install empath 
+pip install torch 
+pip install transformers 
+pip install nltk 
+pip install openai 
+pip install datasets 
+pip install diffusers 
+pip install benepar 
+pip install spacy 
+pip install sentence_transformers 
+pip install optuna 
+pip install interpret 
+pip install markdown 
+pip install bs4
+pip install clearml
+pip install clearml-serving
+python3 -c 'import benepar; benepar.download(\"benepar_en3\")'
+python3 -m spacy download en_core_web_lg
+```
+
+4. Open the Folder in VSCode or whaever you use for python and edit the file ../aiorhuman/bert_bilstm_demo.py 
+5. Update the config values ``CLEARML_PROJECT_NAME`` and ``CLEARML_TASk_NAME`` with values of your choice. 
+> You can use Talk and Project names to get ClearML Taslk data and whatnot, but I like using IDs if you're haphazzard with your naming conventions 
+6. Train your model. We are going to use the default params. When the training is complete, it is will be uploaded to clearml to use for inference anywhere.
 
 ```bash
 python ai-or-human-gpt/aiorhuman_model/bert_bilstm_model.py
 ```
 
-**OR**
+**OR (more on this later)**
 
 4. Upload existing model. but you'd have to do this after you create your service below - but yea. 
 
@@ -70,9 +97,8 @@ clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model upload
 --path bert_bilstm_model.pth
 ```
  
-
-#### Converting your Model. 
-Here is a one shot prompt to use gpt 4.5 to convert to pytorch model code to a format that makes it better for use in clearml. It's good to do this from the get go, but just in case you're comverting other model code and what not. 
+**Configuring your model code to utilise ClearML.** 
+Here is a one shot prompt to use gpt 4.5 to convert your pytorch model code to a format that makes it better for use in clearml. Needless to say, it may not work in the first shot depending on the complexity of the model. And mine is specific, but ut worked for both the Bert and EBM models. 
 
 ```markdown 
 - Review the original PyTorch, TensorFlow, or Keras training script to identify all hardcoded hyperparameters, configurations, and key components like model definition, data loading, training loop, and evaluation function.
