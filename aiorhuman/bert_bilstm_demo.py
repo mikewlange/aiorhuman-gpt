@@ -12,7 +12,8 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import (accuracy_score, classification_report,
                              precision_score, recall_score, f1_score,
-                             roc_auc_score)
+                             roc_auc_score,confusion_matrix)
+
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.tensorboard import SummaryWriter
@@ -158,7 +159,7 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    args = parse_args()s
+    args = parse_args()
     # Initialize ClearML task
     task = Task.init(project_name=CFG.CLEARML_PROJECT_NAME, task_name=CFG.CLEARMl_TASk_NAME, output_uri=True)
     task.connect(vars(args))
