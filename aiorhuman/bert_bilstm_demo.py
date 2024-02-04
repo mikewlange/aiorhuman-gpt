@@ -44,7 +44,7 @@ class CFG:
     BERT_MODEL = 'bert-base-uncased'
     
     CLEARML_PROJECT_NAME = 'Models - Text Classification'
-    CLEARML_TASk_NAME = 'Train Bert bilstm'
+    CLEARML_TASK_NAME = 'Train Bert bilstm'
     
 run_name = f"run_{int(time.time())}"
 logging.basicConfig(level=logging.INFO)
@@ -161,7 +161,7 @@ def parse_args():
 def main():
     args = parse_args()
     # Initialize ClearML task
-    task = Task.init(project_name=CFG.CLEARML_PROJECT_NAME, task_name=CFG.CLEARMl_TASk_NAME, output_uri=True)
+    task = Task.init(project_name=CFG.CLEARML_PROJECT_NAME, task_name=CFG.CLEARML_TASK_NAME, output_uri=True)
     task.connect(vars(args))
 
     if(CFG.DEMO):
