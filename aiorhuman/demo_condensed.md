@@ -128,43 +128,35 @@ Here is a one shot prompt to use gpt 4.5 to convert your pytorch model code to a
 
 ### Deploy Clearml-Serving Infrastructure. 
 
-#### ClearML  
----- 
-1.  Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
-2.  Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml) 
-----
-
-#### Create and Inference Servive Controller
+**Create and Inference Servive Controller**
 > check out [this tutorial](https://clear.ml/docs/latest/docs/clearml_serving/clearml_serving_tutorial) for more general setup. this is specific to this project. but not much. 
 
-3.  Install clearml-serving CLI:
+1.  Install clearml-serving CLI:
 
 ```shell
 pip install clearml-serving #or into your virtualenv or conda env. conda active env
 ```
 
-4.  Create the Serving Service Controller. 
+2.  Create the Serving Service Controller. 
 ```shell 
-clearml-serving create --name "aiorhuman inference service"`
+clearml-serving create --name "aiorhuman inference service"
 ```
 -   The new serving service UID should be printed `New Serving Service created: id=ohohohahahah123456u` Lets look at this in ClearML. 
 
-5.  Write down the Serving Service UID
+3.  Write down the Serving Service UID
 
-#### Deploy Dockers To Internets
+**Deploy Dockers To Internets**
 
-6. Open the repo you just cloned in your editor. 
-```bash
-cd to-where-you-cloned-this: human-or-llm-gpt.git
-```
+4. Add Extra Packages To install
 
-7. Now we are going to edit the clearml-serving/docker/docker-compose-triton.yml file.
+- Go back to your project. Now we are going to edit the clearml-serving/docker/docker-compose-triton.yml file.
 - find the enviroment: ``CLEARML_EXTRA_PYTHON_PACKAGES`` and add the packages you need for your model. we'll add ours here. 
 ```yaml
 CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath torch transformers nltk openai datasets diffusers benepar spacy sentence_transformers optuna interpret markdown bs4}
 ```
 
-8.  Edit the environment variables file (`docker/example.env`) with your clearml-server credentials and Serving Service UID. For example, you should have something like
+5.  Edit the Environment Variables file
+- (`docker/example.env`) with your clearml-server credentials and Serving Service UID. For example, you should have something like
 
 ```python
   CLEARML_WEB_HOST="https://app.clear.ml"
@@ -175,23 +167,23 @@ CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath 
   CLEARML_SERVING_TASK_ID="<serving_service_id_here>"
 ```
 
-9. Spin the clearml-serving containers with docker-compose (or if running on Kubernetes use the helm chart) 
+6. Spin the clearml-serving containers with docker-compose (or if running on Kubernetes use the helm chart) 
 -- We are deploying a Pytorch model. So we will want NVIDIA Triton Inference https://developer.nvidia.com/triton-inference-server or Triton with gpu, but for our porposes cpu Triton is fine so we can test of my laptop. In production I use clearml-agents to train the models on colab gpu or my linux machine. 
 
 ```shell
 cd docker && docker-compose --env-file example.env -f docker-compose-triton.yml up 
 ```
 
-> **Notice**: Any model that registers with "Triton" engine, will run the pre/post processing code on the Inference service container, and the model inference itself will be executed on the Triton Engine container.
-
 > YO! If you're not on a GPU, this will still work. However, you might see odd errors that make you nervous in the log. Go with deployment on an NVIDIA gpu
 
 Let's review what we did. 
 
 10. Explore ClearML
-11. Exlore Docker. 
+11. Exlore Docker.
 
-## Setup API and Inference
+> **Notice**: Any model that registers with "Triton" engine, will run the pre/post processing code on the Inference service container, and the model inference itself will be executed on the Triton Engine container.
+
+### Setup API and Inference
 1. Head back to your project and look at 'aiorhuman_model/preprocess.py' and talk about the setup. 
 
 ```python
@@ -228,7 +220,7 @@ class Preprocess(object):
     # .. all our other features
 
 ```
-### Test the feature generation. 
+**Test the feature generation.** 
 
 Lets make a test class for the features. I'm just running the features code. 
 
@@ -237,7 +229,7 @@ import unittest
 import sys
 import logging
 import pandas as pd
-sys.path.append('examples/model')
+sys.path.append('.')
 
 from preprocess import Preprocess
 
@@ -268,7 +260,7 @@ python aiorhuman_model/tests/features.py
 ```
 
 ## Deploy Inference and Orchistrate Model. 
-Make sure you put in your proper -id and model-id from your slearml-server
+Make sure you put in your proper -id and model-id from your clearml-server
 ```sh
 clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model add \
 --engine triton --endpoint "bert_infer" \
@@ -354,7 +346,7 @@ test_model(text_sample, model_endpoint_url)
 ```curl
 curl -X POST "https://4435-173-31-239-51.ngrok-free.app/serve/bert_infer" \
 -H "Content-Type: application/json" \
--d "{\"text\":\"As the education landscape continues to evolve, the debate over the benefits of students attending school from home has become increasingly relevant. This essay will delve into the multifaceted advantages of remote learning, particularly for students with anxiety or depression, the impact of drama and rumors on student performance in a traditional school setting, and the potential advantages of distance learning on the student body as a whole. By examining these aspects, we aim to develop a strong argument supporting the idea of students attending school from home.\n\nFor students grappling with anxiety or depression, the traditional school environment can be overwhelming and exacerbate their mental health challenges. In a study published in the Journal of Medical Internet Research, it was found that remote learning provided a less stressful and more flexible environment for students dealing with mental health issues. Attending school from home allows these students to create a personalized, comfortable space where they can focus on their studies without the added pressure of social interactions or the fear of judgment from their peers. By minimizing the triggers that often come with a traditional school setting, remote learning offers a valuable opportunity for these students to manage their mental health and concentrate on their academic pursuits.\n\nMoreover, the impact of drama and rumors on student performance in a traditional school setting cannot be overlooked. The social dynamics and peer interactions in a physical school can sometimes lead to the proliferation of rumors and drama, which can significantly impact a student's emotional well-being and academic focus. In contrast, attending school from home provides a shield from these negative influences, allowing students to remain focused on their studies without being distracted or distressed by external factors. This isolation from detrimental social dynamics can lead to a more positive and productive learning environment for students, fostering their academic growth and emotional stability.\n\nFurthermore, the potential advantages of distance learning on the student body as a whole extend beyond individual well-being. Remote learning promotes inclusivity by accommodating students with diverse needs and circumstances, such as those with physical disabilities, chronic illnesses, or those balancing familial responsibilities. A study by the National Education Association highlighted that distance learning facilitates greater equity and access to education for students who may face barriers in a traditional school setting. By embracing remote learning, educational institutions can create an environment that caters to the varied needs of their student body, fostering an inclusive and supportive learning community.\n\nConsidering these aspects, it is evident that students attending school from home can reap a multitude of benefits. This alternative mode of learning offers a supportive and conducive environment for students with anxiety or depression, shields them from the detrimental impact of drama and rumors, and promotes inclusivity and equity within the student body. As such, it is crucial for educational institutions to recognize the potential advantages of remote learning and consider its implementation as a means of enhancing the overall well-being and academic success of their students.\n\nIn conclusion, the benefits of students attending school from home are substantial and wide-ranging. From supporting students with anxiety or depression to mitigating the impact of social dynamics on academic performance and fostering inclusivity, remote learning offers a promising avenue for educational advancement. By prioritizing the well-being and educational needs of students, embracing remote learning can pave the way for a more holistic and supportive approach to education. Therefore, it is imperative for educators and policymakers to consider the potential advantages of remote learning and seriously contemplate its integration into the educational framework.\"}"
+-d "{\"text\":\"This is a test essay. As the education landscape continues to evolve, the debate over the benefits of students attending school from home has become increasingly relevant.\"}"
 ```
 
 3. Postman.
@@ -373,7 +365,7 @@ In a nutshell, we're going to. You must complete all steps to avoid unneeded fru
 0. API - done. 
 1. Create a privacy policy. Gotta have it. 
 2. Create our swagger 
-3. Create our Knoledge File. This is RAG. Retrieval-augmented generation (RAG) is a technique for enhancing the accuracy and reliability of generative AI models with facts fetched from external sources.
+3. Create our knowledge File. This is RAG. Retrieval-augmented generation (RAG) is a technique for enhancing the accuracy and reliability of generative AI models with facts fetched from external sources.
 4. Our interaction with GPT to put it all together. This is bad ass. 
 5. When it works, a little tear will roll down your face. trust me on this. I've watched some great tutorials, there are only a couple good ones, on you tube about this process, and we are all aware this is a bleding edge as it comes today. in this little world. 
 
