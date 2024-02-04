@@ -31,13 +31,12 @@ class CFG:
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # ClearML Dataset IDs
-    #CLEAR_ML_TRAINING_DATASET_ID = '24596ea241c34c6eb5013152a6122e48'
     CLEAR_ML_KAGGLE_TRAIN_DATA = '24596ea241c34c6eb5013152a6122e48' #csv
     CLEAR_ML_AI_GENERATED_ESSAYS = '593fff56e3784e4fbfa4bf82096b0127' #pickle
     CLEAR_ML_AI_REWRITTEN_ESSAYS = '624315dd0e9b4314aa266654ebd71918' #pickle
 
     # Training configuration
-    DEMO = False
+    DEMO = True
     DATA_PATH = 'data'
     SCRATCH_PATH = 'scratch'
     ARTIFACTS_PATH = 'artifacts'
