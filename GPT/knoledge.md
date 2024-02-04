@@ -923,7 +923,7 @@ BERTBiLSTMClassifier(
             (dropout): Dropout(p=0.1, inplace=False)
           )
         )
-      )
+      ) 
     )
     (pooler): BertPooler(
       (dense): Linear(in_features=768, out_features=768, bias=True)
