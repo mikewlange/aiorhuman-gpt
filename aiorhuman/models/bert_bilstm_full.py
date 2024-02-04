@@ -305,17 +305,17 @@ cfg_dict = {key: value for key, value in CFG.__dict__.items() if not key.startsw
 
 task.connect(cfg_dict)
 # Create a study object and optimize the objective function
-# bert_best_custom_study = optuna.create_study(direction='maximize', study_name='bert_best_custom_study')
-# bert_best_custom_study.optimize(objective, n_trials=model_config['num_trials'])
+bert_best_custom_study = optuna.create_study(direction='maximize', study_name='bert_best_custom_study')
+bert_best_custom_study.optimize(objective, n_trials=model_config['num_trials'])
 
-# # Retrain model with best hyperparameters
-# best_trial = bert_best_custom_study.best_trial
+# Retrain model with best hyperparameters
+best_trial = bert_best_custom_study.best_trial
 
-with open('/content/scratch/custom_bert_tokenizer.pkl', 'rb') as f:
-    tokenizer = pickle.load(f)
+# with open('/content/scratch/custom_bert_tokenizer.pkl', 'rb') as f:
+#     tokenizer = pickle.load(f)
     
-with open('/content/scratch/best_custom_model_study.pkl', 'rb') as f:
-    bert_best_custom_study = pickle.load(f)
+# with open('/content/scratch/best_custom_model_study.pkl', 'rb') as f:
+#     bert_best_custom_study = pickle.load(f)
 
 #Load the model with the best trial
 best_trial_params = bert_best_custom_study.best_trial.params
@@ -326,11 +326,11 @@ lstm_hidden_size = best_trial_params["lstm_hidden_size"]
 lstm_layers = best_trial_params["lstm_layers"]
 
 # # Pickle the tokenizer, study, and best model
-# with open(f'{CFG.SCRATCH_PATH}/custom_bert_tokenizer.pkl', 'wb') as f:
-#     pickle.dump(tokenizer, f)
+with open(f'{CFG.SCRATCH_PATH}/custom_bert_tokenizer.pkl', 'wb') as f:
+    pickle.dump(tokenizer, f)
 
-# with open(f'{CFG.SCRATCH_PATH}/best_custom_model_study.pkl', 'wb') as f:
-#     pickle.dump(bert_best_custom_study, f)
+with open(f'{CFG.SCRATCH_PATH}/best_custom_model_study.pkl', 'wb') as f:
+    pickle.dump(bert_best_custom_study, f)
 
 
 #Initialize the best model with the optimal hyperparameters

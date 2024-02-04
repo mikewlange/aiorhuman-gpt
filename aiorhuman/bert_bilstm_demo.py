@@ -45,32 +45,6 @@ class CFG:
     CLEARML_PROJECT_NAME = 'Models - Text Classification'
     CLEARML_TASk_NAME = 'Train Bert bilstm'
     
-def download_dataset_as_dataframe(dataset_id='593fff56e3784e4fbfa4bf82096b0127', file_name="ai_generated.pkl"):
-    import pandas as pd
-    # import Dataset from clearml
-    from clearml import Dataset
-    dataset = Dataset.get(dataset_id, only_completed=True)
-    cached_folder = dataset.get_local_copy()
-    for file_name in os.listdir(cached_folder):
-        if file_name.endswith('.pkl'):
-            file_path = os.path.join(cached_folder, file_name)
-            dataframe = pd.read_pickle(file_path)
-            return dataframe
-    raise FileNotFoundError("No PKL file found in the dataset.")
-
-def download_dataset_as_dataframe_csv(dataset_id='593fff56e3784e4fbfa4bf82096b0127', file_name="ai_generated_essays.csv"):
-    import pandas as pd
-    # import Dataset from clearml
-    extension = file_name.split('.')[-1]
-    from clearml import Dataset
-    dataset = Dataset.get(dataset_id, only_completed=True)
-    cached_folder = dataset.get_local_copy()
-    for file_name in os.listdir(cached_folder):
-        if file_name.endswith(extension):
-            file_path = os.path.join(cached_folder, file_name)
-            dataframe = pd.read_csv(file_path)
-            return dataframe
-
 run_name = f"run_{int(time.time())}"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -153,13 +127,22 @@ def evaluate(model, data_loader, device, epoch, phase='Validation'):
     precision = precision_score(actual_labels, predictions, average='binary', zero_division=1)
     recall = recall_score(actual_labels, predictions, average='binary')
     f1 = f1_score(actual_labels, predictions, average='binary', zero_division=1)
+    auc = roc_auc_score(actual_labels, predictions)
+    conf_matrix = confusion_matrix(actual_labels, predictions)
 
+    sns.heatmap(conf_matrix, annot=True, fmt='d')
+    plt.title(f'{phase} Confusion Matrix')
+    plt.ylabel('Actual Label')
+    plt.xlabel('Predicted Label')
+    plt.savefig(f'{phase}_confusion_matrix_epoch_{epoch}.png')
+    plt.close()
+    
     writer.add_scalar(f'{phase} Accuracy', accuracy, epoch)
     writer.add_scalar(f'{phase} Precision', precision, epoch)
     writer.add_scalar(f'{phase} Recall', recall, epoch)
     writer.add_scalar(f'{phase} F1 Score', f1, epoch)
 
-    return accuracy, precision, recall, f1
+    return accuracy, precision, recall, f1, auc, classification_report(actual_labels, predictions)
 
 def parse_args():
     parser = argparse.ArgumentParser(description='BERT BiLSTM Text Classification')
@@ -210,7 +193,13 @@ def main():
     # Training and Evaluation Loop
     for epoch in range(args.num_epochs):
         train(model, train_dataloader, optimizer, scheduler, CFG.DEVICE, epoch)
-        evaluate(model, val_dataloader, CFG.DEVICE, epoch)
+        accuracy, precision, recall, f1, auc, report = evaluate(model, val_dataloader, CFG.DEVICE, epoch)
+        print(f"Validation Accuracy: {accuracy:.4f}")
+        print(f"precision: {precision:.4f}")
+        print(f"recall: {recall:.4f}")
+        print(f"F1: {f1:.4f}")
+        print(f"auc: {auc:.4f}")
+        print(report)
 
     # Ensure the model is in evaluation mode before scripting
     #model.eval()
