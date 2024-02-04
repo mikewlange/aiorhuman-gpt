@@ -8,7 +8,7 @@ servers:
   - url: https://4435-173-31-239-51.ngrok-free.app/serve
     description: Local development server
 paths:
-  /bert_infer:
+  /bert_infer: 
     post:
       summary: Analyze text and generate predictions and features
       operationId: bert_infer
