@@ -166,7 +166,7 @@ def main():
 
     if(CFG.DEMO):
         # or load the toy dataset
-        df_combined = pd.read_csv('combined_data_toy.csv')
+        df_combined = pd.read_csv('aiorhuman/data/combined_data_toy.csv')
    
     else:
         return

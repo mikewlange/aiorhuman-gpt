@@ -46,7 +46,6 @@ class BERTBiLSTMClassifier(nn.Module):
         self.dropout = nn.Dropout(dropout_rate)
         self.fc = nn.Linear(lstm_hidden_size * 2, num_classes)  # *2 for bidirectional
         self.relu = nn.ReLU()
-
     def forward(self, input_ids, attention_mask):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         sequence_output = outputs.last_hidden_state
@@ -70,15 +69,7 @@ class Preprocess(object):
         # Load the EBM model
         #self.ebm_model = self.load_ebm_model('68210179fd1143d09d5b5a2cb3ec9c4a')
 
-    def load_ebm_model(self, model_id):
-
-        model_path = StorageManager.get_local_copy(remote_url='https://files.clear.ml/Models%20-%20Text%20Classification/train%20ebm%20model.d5ab4a7111fe409ba5bc371ccd2bf051/models/ebm.pkl')
-        # Load the model from the downloaded file
-        with open(model_path, 'rb') as f:
-            ebm_model = pickle.load(f)
-        
-        return ebm_model
-
+    # First 
     def preprocess(self, body: Union[bytes, dict], state: dict, collect_custom_statistics_fn: Optional[Callable[[dict], None]]) -> Any:
         try:
             logging.info(body)
@@ -121,7 +112,15 @@ class Preprocess(object):
 
         return {'bert_predictions': bert_predictions, "features": self.features.to_dict()}
     
+    def load_ebm_model(self, model_id):
 
+        model_path = StorageManager.get_local_copy(remote_url='https://files.clear.ml/Models%20-%20Text%20Classification/train%20ebm%20model.d5ab4a7111fe409ba5bc371ccd2bf051/models/ebm.pkl')
+        # Load the model from the downloaded file
+        with open(model_path, 'rb') as f:
+            ebm_model = pickle.load(f)
+        
+        return ebm_model
+    
     def preprocess_text(self, text):
         try:
             # Remove markdown formatting
@@ -631,6 +630,7 @@ class Preprocess(object):
                 nlp.add_pipe("benepar", config={"model": "benepar_en3"})
         except Exception as e:
             logger.error(f"Failed to load spaCy model: {e}")
+            traceback.print_exc()
             return df_essays
 
         # Define helper functions for tree analysis...
@@ -861,6 +861,7 @@ class Preprocess(object):
             '''Syntactic Tree Patterns'''
             # =============================================================================
             df_essays = self.process_syntactic_tree_patterns(df_entropy)
+            print("df_essays : ",df_essays.columns.tolist())
             
             return df_essays[['flesch_kincaid_grade', 'gunning_fog', 'coleman_liau_index', 'smog_index', 'ari', 'dale_chall', 'textual_entropy', 'semantic_density', 'semantic_flow_variability','num_sentences', 'num_tokens', 'num_unique_lemmas', 'average_token_length', 'average_sentence_length', 'num_entities', 'num_noun_chunks', 'num_pos_tags', 'num_distinct_entities', 'average_entity_length', 'average_noun_chunk_length', 'max_depth', 'avg_branching_factor', 'total_nodes', 'total_leaves', 'unique_rules', 'tree_complexity', 'depth_variability','help','office','dance','money','wedding','domestic_work','sleep','medical_emergency','cold','hate','cheerfulness','aggression','occupation','envy','anticipation','family','vacation','crime','attractive','masculine','prison','health','pride','dispute','nervousness','government','weakness','horror','swearing_terms','leisure','suffering','royalty','wealthy','tourism','furniture','school','magic','beach','journalism','morning','banking','social_media','exercise','night','kill','blue_collar_job','art','ridicule','play','computer','college','optimism','stealing','real_estate','home','divine','sexual','fear','irritability','superhero','business','driving','pet','childish','cooking','exasperation','religion','hipster','internet','surprise','reading','worship','leader','independence','movement','body','noise','eating','medieval','zest','confusion','water','sports','death','healing','legend','heroic','celebration','restaurant','violence','programming','dominant_heirarchical','military','neglect','swimming','exotic','love','hiking','communication','hearing','order','sympathy','hygiene','weather','anonymity','trust','ancient','deception','fabric','air_travel','fight','dominant_personality','music','vehicle','politeness','toy','farming','meeting','war','speaking','listen','urban','shopping','disgust','fire','tool','phone','gain','sound','injury','sailing','rage','science','work','appearance','valuable','warmth','youth','sadness','fun','emotional','joy','affection','traveling','fashion','ugliness','lust','shame','torment','economics','anger','politics','ship','clothing','car','strength','technology','breaking','shape_and_size','power','white_collar_job','animal','party','terrorism','smell','disappointment','poor','plant','pain','beauty','timidity','philosophy','negotiate','negative_emotion','cleaning','messaging','competing','law','friends','payment','achievement','alcohol','liquid','feminine','weapon','children','monster','ocean','giving','contentment','writing','rural','positive_emotion','musical','num_sentences', 'num_tokens', 'num_unique_lemmas', 'average_token_length', 'average_sentence_length', 'num_entities', 'num_noun_chunks', 'num_pos_tags', 'num_distinct_entities', 'average_entity_length', 'average_noun_chunk_length', 'max_depth', 'avg_branching_factor', 'total_nodes', 'total_leaves', 'unique_rules', 'tree_complexity', 'depth_variability']]
             

@@ -2,7 +2,8 @@ import unittest
 import sys
 import logging
 import pandas as pd
-sys.path.append("clearml-serving-human-or-llm-gpt/aiorhuman_model")
+import traceback
+sys.path.append("aiorhuman")
 
 from preprocess import Preprocess
 

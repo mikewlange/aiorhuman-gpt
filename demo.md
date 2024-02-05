@@ -545,3 +545,8 @@ paths:
 ## Lets put it all together. 
 
 Lauch chat gpt and create a new GPT. 
+
+## next
+#### Model;Work on the arcitecture
+#### Features. Find new statistically relevent
+#### Data - use the features as inputs to generate new data. in a loop testing against the ebm. keeping readability high. use the finals to train in the stm. 
