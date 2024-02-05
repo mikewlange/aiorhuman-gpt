@@ -1,11 +1,3 @@
-# Setup
-
--   clearml and clearml-serving set up and install.
--   Install and setup
-    -   Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
-    -   Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
-    -   install docker
-    -   setup a CONDA environemnt for the project, if you want.
 
 ## Install ClearML
 
