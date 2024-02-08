@@ -1,5 +1,14 @@
 # Config and Deploy Infrastructure
 
+<p align="center">
+  <img src="https://github.com/allegroai/clearml-serving/raw/main/docs/design_diagram.png?raw=true" width="1000px">
+  <br>
+  <em>Image source: <a href="https://github.com/allegroai/clearml-serving">GitHub - allegroai/clearml-serving</a></em>
+</p>
+
+**This setup orchestrates a scalable ML serving infrastructure using ClearML, integrating Kafka for message streaming, ZooKeeper for Kafka coordination, Prometheus for monitoring, Alertmanager for alerts, Grafana for visualization, and Triton for optimized model serving.**
+
+
 ### COMPLETED: 
 - Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
 - Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
@@ -18,15 +27,11 @@ clearml-serving create --name "aiorhuman inference service demo"`
 -   The new serving service UID should be printed `New Serving Service created: id=ooooahah12345` Lets look at this in ClearML. 
 
 ## Write down the Serving Service ID
-## Clone demo repo repository. 
 
-```shell
-git clone https://github.com/mikewlange/aiorhuman-gpt 
-```
 
 ## Edit the docker-compose-triton.yml file.
 - clearml-serving/docker/docker-compose-triton.yml
-- find the enviroment: ``CLEARML_EXTRA_PYTHON_PACKAGES`` and add the packages you need for your model. we'll add ours here. 
+- find the var: ``CLEARML_EXTRA_PYTHON_PACKAGES`` and add the packages you need for your model. we'll add ours here. 
 ```yaml
 CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath torch transformers nltk openai datasets diffusers benepar spacy sentence_transformers optuna interpret markdown bs4}
 ```
@@ -57,3 +62,4 @@ Let's review what we did.
 
 10. Explore ClearML
 11. Exlore Docker. 
+
