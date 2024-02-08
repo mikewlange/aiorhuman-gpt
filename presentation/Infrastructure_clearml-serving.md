@@ -12,17 +12,17 @@
 ### COMPLETED: 
 - Setup your [**ClearML Server**](https://github.com/allegroai/clearml-server) or use the [Free tier Hosting](https://app.clear.ml)
 - Setup local access (if you haven't already), see instructions [here](https://clear.ml/docs/latest/docs/getting_started/ds/ds_first_steps#install-clearml)
-ut not much. 
+
 
 ## Install clearml-serving CLI:
 
 ```shell
-pip install clearml-serving #or into your virtualenv or conda env. conda active env
+pip install clearml-serving #you prob did this already
 ```
 
 ## Create the Serving Service Controller. 
 ```shell 
-clearml-serving create --name "aiorhuman inference service demo"`
+clearml-serving create --name "aiorhu demo"`
 ```
 -   The new serving service UID should be printed `New Serving Service created: id=ooooahah12345` Lets look at this in ClearML. 
 
@@ -49,7 +49,7 @@ CLEARML_EXTRA_PYTHON_PACKAGES: ${CLEARML_EXTRA_PYTHON_PACKAGES:-textstat empath 
 ```
 
 ## Spin the clearml-serving containers 
-- using docker-compose (or if running on Kubernetes use the helm chart) 
+- using docker-compose (or if running on Kubernetes use [clearml-serving Helm Chart](https://github.com/allegroai/clearml-helm-charts/tree/main/charts/clearml-serving))
 - We are deploying a Pytorch model. So we want to use NVIDIA Triton Inference https://developer.nvidia.com/triton-inference-server, made for gpu, but it will work on cpu dev machine (my laptop in this case). In production using k8 and help charts is the ay to go. https://github.com/allegroai/clearml-helm-charts 
 
 ```shell
@@ -60,6 +60,7 @@ cd docker && docker-compose --env-file example.env -f docker-compose-triton.yml 
 
 Let's review what we did. 
 
-10. Explore ClearML
-11. Exlore Docker. 
+## Explore ClearML
+## Explore Docker
+## Explore Grafana 
 

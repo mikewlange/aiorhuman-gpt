@@ -8,7 +8,7 @@
 
 ## Quick Review 
 - Go to clearml webui and expore, model, metrics, publishing. 
-- Review infrastructre diagamm again. 
+- Review infrastructre diagram again. 
 
 ## Setup API and Inference
 ### Head back to your project and look at 'aiorhuman/preprocess.py' 
