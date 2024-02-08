@@ -9,9 +9,9 @@
 
 </div>
 
-<pre>
-This project does not touch the code in the clearml_serving directory. However, due to its awesomeness and tight integration with this demo, it was pertinant to bring along for the ride. Enjoy! 
-</pre>
+
+> This project does not touch the code in the clearml_serving directory. However, due to its awesomeness and tight integration with this demo, it was pertinant to bring along for the ride. Enjoy! 
+
 
 <br>
 <div align="center">
