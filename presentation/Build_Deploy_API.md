@@ -1,5 +1,6 @@
-## The API
+## &#8592;[Back](../README.md)
 
+# Build and Deploy API
 ### Model is Good to Go
 <p align="center">
   <img src="train_complete.png" width="600px">
@@ -48,7 +49,7 @@ Make sure you put in your proper -id and model-id from your clearml-server
 ```sh
 clearml-serving --id db2a93a7d21042f0a81c075747edbd74 model add \
 --engine triton --endpoint "bert_infer" \
---preprocess "clearml-serving-human-or-llm-gpt/aiorhuman_model/preprocess.py" \
+--preprocess "aiorhuman-gpt/aiorhuman/preprocess.py" \
 --model-id 6cca54290c5d426dbcc088201274656e \
 --input-size 1 128 \
 --input-name "input_ids" \
@@ -64,7 +65,7 @@ clearml-serving --id db2a93a7d21042f0a81c075747edbd74 model add \
 ```sh
 clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model auto-update 
 --engine triton --endpoint "bert_infer" \
---preprocess "clearml-serving-human-or-llm-gpt/aiorhuman_model/preprocess.py" \ 
+--preprocess "aiorhuman-gpt/aiorhuman/preprocess.py" \ 
 --model-id 6cca54290c5d426dbcc088201274656e \
 --input-size 1 128 \
 --input-name "input_ids" \
@@ -79,7 +80,7 @@ clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model auto-update
 
 **Have on Deck**
 ```sh
-clearml-serving model remove -h --endpoint 'bert_infer'
+clearml-serving model remove -h --endpoint 'bert_infer_demo'
 ```
 
 ## Wait 5 Min
@@ -97,7 +98,7 @@ ngrok http http://localhost:8080
 ## Test your api. 
 1. Update your test files with service ids 
 ```sh
-python aiorhuman_model/tests/api.py
+python aiorhuman/tests/api.py
 ``` 
 2. In code
 ```python

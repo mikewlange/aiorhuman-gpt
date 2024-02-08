@@ -1,5 +1,5 @@
-## Train and Publish Model
- 
+# Train and Publish Model
+## &#8592;[Back](../README.md)
 
 ### Model Review
 If we look at this code here
@@ -48,7 +48,14 @@ python ai-or-human-gpt/aiorhuman_model/bert_bilstm_model.py
 
 When this is like this after 3 epocs, leave it alone. it's upoading your model to your artifacts. (cleqrml servers in this case)
 
-![alt text](image.png)
+<p align="center">
+  <img src="image.png" width="600px">
+  <br>
+</p>
 
-Only after you get this can you continue. 
-![alt text](image-1.png)  (wait for your prompt)
+</br> 
+Only after you get this can you continue. I.E wait till you get your command prompt back before killing the terminal. it may look like its hanging, it's not.  
+<p align="center">
+  <img src="image-1.png" width="600px">
+  <br>
+</p>
