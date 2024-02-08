@@ -31,14 +31,21 @@
 ## Architecture
 <img src="./presentation/ai_or_human_overview_demo.png" alt="Alt Text"/>
 
-
 ## Watch and Code Along.
 [![Watch the video](presentation/cover_image.png)](https://youtu.be/fv-MYQ5fVNc)
 ### [Mike Lange Description]
-Um. Ok. Well. This is a step by step guide to building and deploying your own Custom GPT and API with End to End ClearML integration. Fun stuff. 
+<img align="left" width="30" src="./presentation/me.png" /> 
+Um. Ok. Well. This is a step by step guide to building and deploying your own Custom GPT and API with End to End ClearML integration. Fun stuff.
 
 ### [GPT 4 Description]
-Embark on a comprehensive journey to create, deploy, and leverage your very own Custom GPT and API, fully integrated with ClearML for a seamless experience. This step-by-step tutorial takes you through the entire process, starting with the construction of a robust PyTorch model that combines the prowess of a ``BERT``/BiLSTM with the interpretability of an ``Explainable Boosting Machine`` (EBM) from InterpretML.
+<img align="left" width="30" src="./presentation/gpt.png" /> 
+Embark on a comprehensive journey to create, deploy, and leverage your very own Custom GPT and API, fully integrated with ClearML for a seamless experience. 
+
+<br>
+
+This step-by-step tutorial takes you through the entire process, starting with the construction of a robust PyTorch model that combines the prowess of a ``BERT/BiLSTM`` with the interpretability of an ``Explainable Boosting Machine`` (EBM) from InterpretML.
+
+<br>
 
 Discover how to bring your API to life using the power of ``HuggingFace``, ``PyTorch``, ``ClearML``, ``ClearML-Serving``, ``Docker``, ``NVIDIA Triton Inference``, and more ensuring your model is not just a marvel of machine learning but also a fully operational service. Dive into the world of custom GPT actions, designing a system that communicates effectively with your API, and explore the innovative concept of ``Retrieval Augmented Generation`` (RAG) to enhance your GPT's responses with real-time, llm based enhanced explainability.
 
@@ -60,5 +67,5 @@ Wow, right?
 
 ### 😂 &#8594; [Have a Laugh](https://www.lifehack.org/articles/lifestyle/30-ways-add-fun-your-daily-routine.html)
 
-#### 🤟 If your organization is looking for someone with my skillset, I am available as of 2-9-2024. Send me a message or check out my resume at [http://www.mikelange.com](mikelange.com) I look forwrd to chatting!
+#### 🤟 If your organization is looking for someone with my skillset, I am available as of 2-9-2024. Send me a message or check out my resume at [http://www.mikelange.com](mikelange.com) I look forward to chatting!
  
