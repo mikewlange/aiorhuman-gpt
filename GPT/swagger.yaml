@@ -5,13 +5,13 @@ info:
   description: Called a model to predict if the text was written by an LLM or a Human. Return analyses as well. 
     extract features.
 servers:
-  - url: https://4435-173-31-239-51.ngrok-free.app/serve
+  - url: https://9e3a-173-31-239-51.ngrok-free.app/serve
     description: Local development server
 paths:
-  /bert_infer: 
+  /bert_infer_demo: 
     post:
       summary: Analyze text and generate predictions and features
-      operationId: bert_infer
+      operationId: bert_infer_demo
       requestBody:
         description: Text to be analyzed
         required: true
