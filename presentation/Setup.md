@@ -12,8 +12,7 @@ pip install clearml
 ## Connect ClearML SDK to the Server
 1.  Execute the following command to run the ClearML setup wizard:
 
-```
-
+```sh
 clearml-init
 ```
 
@@ -32,7 +31,6 @@ conda create -n "py39_demo" python=3.9 ipython
 conda activate py39_demo
 ```
 ```sh
-pip3 install textstat 
 pip3 install Markdown
 pip3 install benepar
 pip3 install clearml

@@ -2,20 +2,18 @@
 
 ### Model is Good to Go
 <p align="center">
-  <img src="train_complete.png" width="1200px">
+  <img src="train_complete.png" width="600px">
   <br>
 </p>
 
-### Quick Review 
-<p align="center">
-  <img src="https://github.com/allegroai/clearml-serving/raw/main/docs/design_diagram.png?raw=true" width="1200px">
-  <br>
-  <em>Image source: <a href="https://github.com/allegroai/clearml-serving">GitHub - allegroai/clearml-serving</a></em>
-</p>
+## Quick Review 
+- Go to clearml webui and expore, model, metrics, publishing. 
+- Review infrastructre diagamm again. 
 
-### Setup API and Inference
-1. Head back to your project and look at 'aiorhuman/preprocess.py' 
+## Setup API and Inference
+### Head back to your project and look at 'aiorhuman/preprocess.py' 
 
+Impliment these. 
 ```python
 class Preprocess(object):
     def __init__(self):
@@ -37,11 +35,10 @@ class Preprocess(object):
 
     def postprocess(self, data: Any, state: dict, collect_custom_statistics_fn: Optional[Callable[[dict], None]]) -> dict:
   
-
 ```
-**Test the feature generation.** 
 
-Run 
+### Test the feature generation.
+Run: 
 ```bash
 python aiorhuman/tests/features.py
 ```
@@ -62,7 +59,7 @@ clearml-serving --id db2a93a7d21042f0a81c075747edbd74 model add \
 --tags "bert-infer-add"
 ```
 
-**OR**
+**OR (explain)**
 
 ```sh
 clearml-serving --id 57187db30bfa46f5876ea198f3e46ecb model auto-update 
@@ -98,12 +95,11 @@ ngrok http http://localhost:8080
 ---
 
 ## Test your api. 
-
 1. Update your test files with service ids 
 ```sh
 python aiorhuman_model/tests/api.py
 ``` 
-1. In code
+2. In code
 ```python
 import requests
 import json
@@ -129,14 +125,14 @@ model_endpoint_url = "https://4435-173-31-239-51.ngrok-free.app/serve/bert_infer
 test_model(text_sample, model_endpoint_url)
 ```
 
-2. Curl 
+3. Curl 
 ```curl
 curl -X POST "https://4435-173-31-239-51.ngrok-free.app/serve/bert_infer" \
 -H "Content-Type: application/json" \
 -d "{\"text\":\"This is a test essay. As the education landscape continues to evolve, the debate over the benefits of students attending school from home has become increasingly relevant.\"}"
 ```
 
-3. Postman.
+4. Postman.
 You can grab the collection from [here](clearml-serving-human-or-llm-gpt/aiorhuman_model/tests)
 
-Coo. Moving on. 
+Word. Moving on. 
