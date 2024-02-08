@@ -16,8 +16,8 @@ from tqdm import tqdm
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
-
-
+from clearml import Task, OutputModel
+import argparse
 # Set device for training
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -88,9 +88,9 @@ def load_data():
     ai_rewritten_essays = ai_rewritten_essays.dropna(subset=['text'])
 
     # Sample For Training Set. For demo. Use all data for production
-    random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=20000)[['text', 'label', 'source']]
-    random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=9000)[['text', 'label', 'source']]
-    random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=10000)[['text', 'label', 'source']]
+    random_kaggle_training_data_0 = kaggle_training_data[kaggle_training_data['label'] == 0].sample(n=10000)[['text', 'label', 'source']]
+    random_kaggle_training_data_1 = kaggle_training_data[kaggle_training_data['label'] == 1].sample(n=4000)[['text', 'label', 'source']]
+    random_ai_generated_essays = ai_generated_essays[ai_generated_essays['label'] == 1].sample(n=5000)[['text', 'label', 'source']]
     random_ai_rewritten_essays = ai_rewritten_essays[ai_rewritten_essays['label'] == 1].sample(n=1000)[['text', 'label', 'source']]
     
     combined_data = pd.concat([random_kaggle_training_data_0, random_kaggle_training_data_1,random_ai_generated_essays,random_ai_rewritten_essays])
@@ -281,9 +281,9 @@ def objective(trial):
                 'dropout_rate': dropout_rate,
                 'fc_layer_size': fc_layer_size
             }
-            torch.save(model.state_dict(), f"{CFG.SCRATCH_PATH}/bert_finetune_custom_{trial.number}.pt")
+            torch.save(model.state_dict(), "bert_finetune_custom_{trial.number}.pt")
 
-    torch.save(best_params, f"{CFG.SCRATCH_PATH}/best_trial_params.json")
+    torch.save(best_params, "best_trial_params.json")
     return best_val_auc
 
 def parse_args():
@@ -299,7 +299,7 @@ def parse_args():
     parser.add_argument('--lstm-layers', type=int, default=2, help='Number of LSTM layers')
     return parser.parse_args()
 
-task = Task.init(project_name='Models - Text Classification - From Colab', task_name='train bert bilstm', output_uri=True)
+task = Task.init(project_name='Bert BiLSTM Model', task_name='train bert bilstm', output_uri=True)
 cfg_dict = {key: value for key, value in CFG.__dict__.items() if not key.startswith('__')}
 #args = parse_args()
 
@@ -309,7 +309,7 @@ bert_best_custom_study = optuna.create_study(direction='maximize', study_name='b
 bert_best_custom_study.optimize(objective, n_trials=model_config['num_trials'])
 
 # Retrain model with best hyperparameters
-best_trial = bert_best_custom_study.best_trial
+best_trial = bert_best_custom_study.best_trial.params
 
 # with open('/content/scratch/custom_bert_tokenizer.pkl', 'rb') as f:
 #     tokenizer = pickle.load(f)
@@ -317,19 +317,18 @@ best_trial = bert_best_custom_study.best_trial
 # with open('/content/scratch/best_custom_model_study.pkl', 'rb') as f:
 #     bert_best_custom_study = pickle.load(f)
 
-#Load the model with the best trial
-best_trial_params = bert_best_custom_study.best_trial.params
-learning_rate = best_trial_params["learning_rate"]
-dropout_rate = best_trial_params["dropout_rate"]
-fc_layer_size = best_trial_params["fc_layer_size"]
-lstm_hidden_size = best_trial_params["lstm_hidden_size"]
-lstm_layers = best_trial_params["lstm_layers"]
+
+learning_rate = best_trial["learning_rate"]
+dropout_rate = best_trial["dropout_rate"]
+fc_layer_size = best_trial["fc_layer_size"]
+lstm_hidden_size = best_trial["lstm_hidden_size"]
+lstm_layers = best_trial["lstm_layers"]
 
 # # Pickle the tokenizer, study, and best model
-with open(f'{CFG.SCRATCH_PATH}/custom_bert_tokenizer.pkl', 'wb') as f:
+with open('custom_bert_tokenizer.pkl', 'wb') as f:
     pickle.dump(tokenizer, f)
 
-with open(f'{CFG.SCRATCH_PATH}/best_custom_model_study.pkl', 'wb') as f:
+with open('best_custom_model_study.pkl', 'wb') as f:
     pickle.dump(bert_best_custom_study, f)
 
 
@@ -347,9 +346,9 @@ for epoch in tqdm(range(model_config['num_epochs']), desc='Epoch'):
     evaluate(best_model, val_dataloader, device, epoch)
 
 #Save the retrained best model
-torch.save(best_model.state_dict(), f"{CFG.SCRATCH_PATH}/bert_bilstm_model.pt")
+torch.save(best_model.state_dict(), "bert_bilstm_model.pt")
 output_model = OutputModel(task=task)
-output_model.update_weights(f"{CFG.SCRATCH_PATH}/bert_bilstm_model.pt")
+output_model.update_weights("bert_bilstm_model.pt")
 
 #Print best trial details
 print("Best trial:")
