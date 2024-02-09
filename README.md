@@ -33,6 +33,9 @@
 ## Architecture
 <img src="presentation/images/ai_or_human_overview.drawio.png" alt="Alt Text"/>
 
+## Original Concept
+[Check it out here](https://mikewlange.github.io/aiorhuman-gpt/aiorhuman/ai-or-human-notebook.html)
+
 ## Watch and Code Along.
 [![Watch the video](presentation/images/cover_image.png)](https://youtu.be/fv-MYQ5fVNc)
 ### [Mike Lange Description]
