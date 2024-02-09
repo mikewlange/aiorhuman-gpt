@@ -25,7 +25,8 @@ from clearml import Task, OutputModel
 from clearml_logger import ClearMLTaskHandler
 import pandas as pd
 import pickle
-from clearml import Task, StorageManager
+from clearml import Task
+import traceback
 
 class CFG:
     # Device configuration
@@ -159,62 +160,66 @@ def parse_args():
     return parser.parse_args()
 
 def main():
-    args = parse_args()
-    # Initialize ClearML task
-    task = Task.init(project_name=CFG.CLEARML_PROJECT_NAME, task_name=CFG.CLEARML_TASK_NAME, output_uri=True)
-    task.connect(vars(args))
-
-    if(CFG.DEMO):
-        # or load the toy dataset
-        df_combined = pd.read_csv('aiorhuman/train_data/combined_data_toy.csv')
-   
-    else:
-        return
- 
-    texts = df_combined['text'].str.lower().tolist()  # Lowercase for uncased BERT
-    labels = df_combined['label'].tolist()
     
-    tokenizer = BertTokenizer.from_pretrained(CFG.BERT_MODEL)
-    # Split the data into training and validation sets
-    train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=0.3, random_state=42)
-    train_dataset = TextClassificationDataset(train_texts, train_labels, tokenizer, args.max_length)
-    val_dataset = TextClassificationDataset(val_texts, val_labels, tokenizer, args.max_length)
-    train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
+    try:
+        args = parse_args()
+        # Initialize ClearML task
+        task = Task.init(project_name=CFG.CLEARML_PROJECT_NAME, task_name=CFG.CLEARML_TASK_NAME, output_uri=True)
+        task.connect(vars(args))
 
-    # Initialize the model
-    model = BERTBiLSTMClassifier(CFG.BERT_MODEL, args.num_classes, args.dropout_rate, args.lstm_hidden_size, args.lstm_layers)
-    model.to(CFG.DEVICE)
+        if(CFG.DEMO):
+            # or load the toy dataset
+            df_combined = pd.read_csv('aiorhuman/train_data/combined_data_toy.csv')
+    
+        else:
+            return
+    
+        texts = df_combined['text'].str.lower().tolist()  # Lowercase for uncased BERT
+        labels = df_combined['label'].tolist()
+        
+        tokenizer = BertTokenizer.from_pretrained(CFG.BERT_MODEL)
+        # Split the data into training and validation sets
+        train_texts, val_texts, train_labels, val_labels = train_test_split(texts, labels, test_size=0.3, random_state=42)
+        train_dataset = TextClassificationDataset(train_texts, train_labels, tokenizer, args.max_length)
+        val_dataset = TextClassificationDataset(val_texts, val_labels, tokenizer, args.max_length)
+        train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+        val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
 
-    # Optimizer and Scheduler
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate)
-    total_steps = len(train_dataloader) * args.num_epochs
-    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
+        # Initialize the model
+        model = BERTBiLSTMClassifier(CFG.BERT_MODEL, args.num_classes, args.dropout_rate, args.lstm_hidden_size, args.lstm_layers)
+        model.to(CFG.DEVICE)
 
-    # Training and Evaluation Loop
-    for epoch in range(args.num_epochs):
-        train(model, train_dataloader, optimizer, scheduler, CFG.DEVICE, epoch)
-        accuracy, precision, recall, f1, auc, report = evaluate(model, val_dataloader, CFG.DEVICE, epoch)
-        print(f"Validation Accuracy: {accuracy:.4f}")
-        print(f"precision: {precision:.4f}")
-        print(f"recall: {recall:.4f}")
-        print(f"F1: {f1:.4f}")
-        print(f"auc: {auc:.4f}")
-        print(report)
+        # Optimizer and Scheduler
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate)
+        total_steps = len(train_dataloader) * args.num_epochs
+        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
 
-    # Ensure the model is in evaluation mode before scripting
-    #model.eval()
+        # Training and Evaluation Loop
+        for epoch in range(args.num_epochs):
+            train(model, train_dataloader, optimizer, scheduler, CFG.DEVICE, epoch)
+            accuracy, precision, recall, f1, auc, report = evaluate(model, val_dataloader, CFG.DEVICE, epoch)
+            print(f"Validation Accuracy: {accuracy:.4f}")
+            print(f"precision: {precision:.4f}")
+            print(f"recall: {recall:.4f}")
+            print(f"F1: {f1:.4f}")
+            print(f"auc: {auc:.4f}")
+            print(report)
 
-    # Was having touble with the torch jit. so we'll have to load our model with the objet class.
-    model_path = 'bert_bilstm_model.pt'
-    torch.save(model.state_dict(), model_path)
+        # Ensure the model is in evaluation mode before scripting
+        #model.eval()
 
-    output_model = OutputModel(task=task)
-    output_model.update_weights(model_path)
-    task.close()
+        # Was having touble with the torch jit. so we'll have to load our model with the objet class.
+        model_path = 'bert_bilstm_model.pt'
+        torch.save(model.state_dict(), model_path)
 
-    print("Training completed")
+        output_model = OutputModel(task=task)
+        output_model.update_weights(model_path)
+        task.close()
 
+        print("Training completed")
+    except Exception as e:
+        logging.error(f"An error occurred: {traceback.print_exc()}")
+        traceback.print_exc()
 if __name__ == "__main__":
     main()
 
