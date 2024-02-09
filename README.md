@@ -56,9 +56,10 @@ Wow, right? I hope it's that exciting. I hope I do all that.
 
 
 ### &#9851; &#8594; [Setup Your Environment](presentation/1.Setup.md) 
-### 🚄 &#8594; [Train and Publish Model ](presentation/2.Train_Publish_Model.md) 
 
-### 🏗 &#8594; [Deploy Infrastructure](presentation/3.Deploy_Infrastructure.md) 
+### 🏗 &#8594; [Deploy Infrastructure](presentation/2.Deploy_Infrastructure.md) 
+
+### 🚄 &#8594; [Train and Publish Model ](presentation/3.Train_Publish_Model.md) 
 
 ### 😻 &#8594; [Build API](presentation/4.Build_Deploy_API.md) 
 
@@ -91,13 +92,19 @@ Wow, right? I hope it's that exciting. I hope I do all that.
 and all the others
 
 TODOS: 
-- [ ] Improve the models. Help needed.  
+- [ ] Improve the models. Help needed. 
+- [ ] Clean up code. 
+- [ ] ClearML Dashboards
+- [ ] Automate Training
 - [ ] Improved metrics with training and inference 
 - [ ] Grafana dashboards 
 - [ ] Configure helm charts for k8 deployment 
 - [ ] Speed up feature gen pipeline 
-- [ ] Build EBM to ONYX pipeline to serve full ensemble on Triton 
+- [ ] Build EBM to ONYX pipeline to serve full ensemble on Triton (https://github.com/interpretml/ebm2onnx)
 - [ ] ``Mad-Lib`` the training data gen prompts to do GAN optimizations. (explain this process better)
+- [ ] Greatly reduce knoledge file
+- [ ] impliment https://github.com/interpretml/TalkToEBM and 
+- [ ] https://github.com/interpretml/interpret-text to expand explability. 
 
 References: 
 
