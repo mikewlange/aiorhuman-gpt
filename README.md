@@ -70,31 +70,32 @@ Wow, right? I hope it's that exciting. I hope I do all that.
 #### 🤟 If your organization is looking for someone with my skillset, I am available as of 2-12-2024. Send me a message or check out my resume at [http://www.mikelange.com](mikelange.com) I look forward to chatting!
  
 ## Technology Thank You! 
-&#8594; Hugging Face: https://huggingface.co/  
-&#8594; Interpret ML: https://interpret.ml/ 
-&#8594; Apache https://www.apache.org/ 
-&#8594; ClearML: https://clear.ml/ 
-&#8594; Thanks ``Victor`` For the awesome Vids!  
-&#8594; Kaggle: https://Kaggle.com
-&#8594; PyTorch: https://PyTorch.org  
-&#8594; Tensorflow: https://www.tensorflow.org/
-&#8594; OpenAI: https://openai.com   
-&#8594; Docker: https://docker.com   
-&#8594; NVIDIA: https://nvidia.com  
-&#8594; Optuna: https://optuna.org/
-&#8594; Anaconda: https://anaconda.org/  
-&#8594; Spacy: https://spacy.io/
-&#8594; Berkley Neural Parser: https://spacy.io/universe/project/self-attentive-parser
-&#8594; scikit-learn https://scikit-learn.org
-&#8594; BERT: https://huggingface.co/docs/transformers/en/model_doc/bert
-&#8594; Empath: https://github.com/Ejhfast/empath-client
-&#8594; textstat: https://pypi.org/project/textstat/
-and all the others
+- &#8594; Hugging Face: https://huggingface.co/  
+- &#8594; Interpret ML: https://interpret.ml/ 
+- &#8594; Apache https://www.apache.org/ 
+- &#8594; ClearML: https://clear.ml/ 
+- &#8594; Thanks ``Victor`` For the awesome Vids!  
+- &#8594; Kaggle: https://Kaggle.com
+- &#8594; PyTorch: https://PyTorch.org  
+- &#8594; Tensorflow: https://www.tensorflow.org/
+- &#8594; OpenAI: https://openai.com   
+- &#8594; Docker: https://docker.com   
+- &#8594; NVIDIA: https://nvidia.com  
+- &#8594; Optuna: https://optuna.org/
+- &#8594; Anaconda: https://anaconda.org/  
+- &#8594; Spacy: https://spacy.io/
+- &#8594; Berkley Neural Parser: https://spacy.io/universe/project/self-attentive-parser
+- &#8594; scikit-learn https://scikit-learn.org
+- &#8594; BERT: https://huggingface.co/docs/transformers/en/model_doc/bert
+- &#8594; Empath: https://github.com/Ejhfast/empath-client
+- &#8594; textstat: https://pypi.org/project/textstat/
+- and all the others I didn't mention.
 
 TODOS: 
 - [ ] Improve the models. Help needed. 
 - [ ] Clean up code. 
 - [ ] ClearML Dashboards
+- [ ] ClearML - Improve Integration
 - [ ] Automate Training
 - [ ] Improved metrics with training and inference 
 - [ ] Grafana dashboards 
