@@ -10,8 +10,10 @@
 
 > &#10039; This project does not touch the code in the clearml_serving directory. However, due to its awesomeness and tight integration with this demo, it was pertinant to bring along for the ride. Enjoy!
 
-## Inspired by:
+
 <div align="center">
+
+## Inspired by:
 <img src="https://www.kaggle.com/static/images/site-logo.svg" width='200px' alt="Alt Text"/>
 
 #### LLM - Detect AI Generated Text
@@ -44,11 +46,11 @@ Embark on a comprehensive journey to create, deploy, and leverage your very own 
 
 This step-by-step tutorial takes you through the entire process, starting with the construction of a robust PyTorch model that combines the prowess of a ``BERT/BiLSTM`` with the interpretability of an ``Explainable Boosting Machine`` (EBM) from InterpretML.
 
-Discover how to bring your API to life using the power of ``HuggingFace``, ``PyTorch``, ``ClearML``, ``ClearML-Serving``, ``Docker``, ``NVIDIA Triton Inference``, and more ensuring your model is not just a marvel of machine learning but also a fully operational service. Dive into the world of custom GPT actions, designing a system that communicates effectively with your API, and explore the innovative concept of ``Retrieval Augmented Generation`` (RAG) to enhance your GPT's responses with real-time, llm based enhanced explainability.
+Discover how to bring your API to life using the power of ``HuggingFace``, ``PyTorch``, ``ClearML``, ``ClearML-Serving``, ``Docker``, ``NVIDIA Triton``, and **MORE** ensuring your model is not just a marvel of machine learning but also a fully operational service. Dive into the world of custom GPT actions, designing a system that communicates effectively with your API, and explore the innovative concept of ``Retrieval Augmented Generation`` (RAG) to enhance your GPT's responses with real-time, llm based enhanced explainability.
 
 Whether you're a seasoned data scientist or an enthusiastic beginner &#9996;, this guide promises to equip you with the knowledge and tools needed to bring your AI visions to reality.
 
-Wow, right? 
+Wow, right? I hope it's that exciting. I hope I do all that. 
 
 &#9996; That last part may be off. This is not easy stuff. You will work at getting it all going if you wish to recreate it. But just dive into the areas that are new to you, and kick its ass.  
 
@@ -95,7 +97,7 @@ TODOS:
 - [ ] Configure helm charts for k8 deployment 
 - [ ] Speed up feature gen pipeline 
 - [ ] Build EBM to ONYX pipeline to serve full ensemble on Triton 
-- [ ] ``Mad Lib`` the training data gen prompts to do GAN optimizations. (explain this process better)
+- [ ] ``Mad-Lib`` the training data gen prompts to do GAN optimizations. (explain this process better)
 
 References: 
 
