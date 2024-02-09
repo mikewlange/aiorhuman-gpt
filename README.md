@@ -68,12 +68,34 @@ Wow, right?
  
 ## Technology Thank You! 
 &#8594; Hugging Face: https://huggingface.co/  
-&#8594; Interpret ML: https://interpret.ml/
-&#8594; ClearML: https://clear.ml/  
+&#8594; Interpret ML: https://interpret.ml/ 
+&#8594; Apache https://www.apache.org/ 
+&#8594; ClearML: https://clear.ml/ 
 &#8594; Thanks ``Victor`` For the awesome Vids!  
+&#8594; Kaggle: https://Kaggle.com
 &#8594; PyTorch: https://PyTorch.org  
+&#8594; Tensorflow: https://www.tensorflow.org/
 &#8594; OpenAI: https://openai.com   
 &#8594; Docker: https://docker.com   
 &#8594; NVIDIA: https://nvidia.com  
-&#8594; Anaconda https://anaconda.org/  
-&#8594; Github  @GitHub 
+&#8594; Optuna: https://optuna.org/
+&#8594; Anaconda: https://anaconda.org/  
+&#8594; Spacy: https://spacy.io/
+&#8594; Berkley Neural Parser: https://spacy.io/universe/project/self-attentive-parser
+&#8594; scikit-learn https://scikit-learn.org
+&#8594; BERT: https://huggingface.co/docs/transformers/en/model_doc/bert
+&#8594; Empath: https://github.com/Ejhfast/empath-client
+&#8594; textstat: https://pypi.org/project/textstat/
+and all the others
+
+TODOS: 
+- [ ] Improve the models. Help needed.  
+- [ ] Improved metrics with training and inference 
+- [ ] Grafana dashboards 
+- [ ] Configure helm charts for k8 deployment 
+- [ ] Speed up feature gen pipeline 
+- [ ] Build EBM to ONYX pipeline to serve full ensemble on Triton 
+- [ ] ``Mad Lib`` the training data gen prompts to do GAN optimizations. (explain this process better)
+
+References: 
+
