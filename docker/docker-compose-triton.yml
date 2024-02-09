@@ -1,22 +1,5 @@
 version: "3"
 
-# CLI - Secure configuration interface for on-line model upgrade/deployment on running Serving Services
-
-# Serving Service Task - Control plane object storing configuration on all the endpoints. Support multiple separated instance, deployed on multiple clusters.
-
-# Inference Services - Inference containers, performing model serving pre/post processing. Also support CPU model inferencing.
-
-# Serving Engine Services - Inference engine containers (e.g. Nvidia Triton, TorchServe etc.) used by the Inference Services for heavier model inference. I use nvidia triton. we convert the EBM model to ONYX and run through TIS.
-
-# Statistics Service - Single instance per Serving Service collecting and broadcasting model serving & performance statistics
-
-# Time-series DB - Statistics collection service used by the Statistics Service, e.g. Prometheus
-
-# Dashboards - Customizable dashboard-ing solution on top of the collected statistics, e.g. Grafana
-
-# https://zookeeper.apache.org/
-# https://kafka.apache.org/
-
 services:
   zookeeper:
     image: bitnami/zookeeper:3.7.0
